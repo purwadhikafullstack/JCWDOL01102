@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-const tablename = "users";
+const tablename = 'users';
 module.exports = {
   async up(queryInterface, Sequelize) {
     /**
@@ -33,11 +33,11 @@ module.exports = {
       },
       createdAt: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     });
   },

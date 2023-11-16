@@ -1,11 +1,11 @@
-import sequelize, { Sequelize } from "sequelize";
-import dotenv from "dotenv";
-import configConstants from "./constants";
-import path from "path";
+import sequelize, { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
+import configConstants from './constants';
+import path from 'path';
 dotenv.config();
 
-const sequelizeConfig = path.resolve(__dirname, "./config");
-const env = process.env.NODE_ENV || "development";
+const sequelizeConfig = path.resolve(__dirname, './config');
+const env = process.env.NODE_ENV || 'development';
 const config = require(sequelizeConfig)[env];
 
 class Database {
@@ -29,7 +29,7 @@ class Database {
     this.minPool = configConstants.DB_MIN_POOL;
     this.database = new Sequelize(this.db, this.user, this.password, {
       host: this.host,
-      dialect: "mysql",
+      dialect: 'mysql',
       port: this.port,
       logging: false,
       pool: {
@@ -43,10 +43,10 @@ class Database {
     this.database
       .authenticate()
       .then(() => {
-        console.log("Connection database has been established successfully.");
+        console.log('Connection database has been established successfully.');
       })
       .catch((err) => {
-        console.error("Unable to connect to the database:", err);
+        console.error('Unable to connect to the database:', err);
       });
 
     this.database.sync({
@@ -64,4 +64,3 @@ class Database {
 }
 
 export default Database.getInstance(); // Export the singleton instance
-

@@ -1,4 +1,4 @@
-import ProductService from "../../service/products/product.service";
+import ProductService from '../../service/products/product.service';
 
 export default class ProductController {
   productService: ProductService;

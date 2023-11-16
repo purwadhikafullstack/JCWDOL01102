@@ -1,11 +1,11 @@
-import { Request, Response } from "express";
-import UserService from "../service/user.service";
-import { HttpStatusCode } from "axios";
-import { ProcessError } from "../helper/Error/errorHandler";
-import { BadRequestException } from "../helper/Error/BadRequestException/BadRequestException";
-import { validate } from "../helper/function/validator";
-import { postUserValidator } from "../helper/validator/postUser.validator";
-import Users from "../database/models/user";
+import { Request, Response } from 'express';
+import UserService from '../service/user.service';
+import { HttpStatusCode } from 'axios';
+import { ProcessError } from '../helper/Error/errorHandler';
+import { BadRequestException } from '../helper/Error/BadRequestException/BadRequestException';
+import { validate } from '../helper/function/validator';
+import { postUserValidator } from '../helper/validator/postUser.validator';
+import Users from '../database/models/user';
 
 export class UserController {
   userServices: UserService;
@@ -31,7 +31,7 @@ export class UserController {
   async read(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-      if (!id) throw new BadRequestException("Invalid id", {});
+      if (!id) throw new BadRequestException('Invalid id', {});
       const user = await this.userServices.getById(id);
       const userObject = user.toJSON();
       res.json(userObject);
@@ -66,7 +66,7 @@ export class UserController {
   async delete(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
-      if (!id) throw new BadRequestException("Invalid id", {});
+      if (!id) throw new BadRequestException('Invalid id', {});
       const affectedRows = await this.userServices.deleteById(id);
       res.status(HttpStatusCode.Ok).json({
         affectedRows: affectedRows || 0,

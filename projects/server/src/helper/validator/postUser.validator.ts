@@ -3,16 +3,16 @@
 
 export const postUserValidator = {
   name: {
-    type: "string",
+    type: 'string',
     min: 3,
     max: 255,
   },
   email: {
-    type: "email",
+    type: 'email',
     max: 255,
   },
   password: {
-    type: "string",
+    type: 'string',
     min: 6,
     max: 255,
   },
