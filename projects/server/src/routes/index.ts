@@ -1,5 +1,5 @@
-import { Request, Response, Router } from "express";
-import { UserController } from "../controllers/user";
+import { Request, Response, Router } from 'express';
+import { UserController } from '../controllers/user';
 
 export default class MainRouter {
   router: Router;
@@ -15,29 +15,21 @@ export default class MainRouter {
   }
 
   private userRoutes() {
-    this.router.get("/", (req, res) => {
+    this.router.get('/', (req, res) => {
       res.json({
-        message: "Welcome to the API",
+        message: 'Welcome to the API',
       });
     });
 
     this.router
-      .route("/users/:id")
+      .route('/users/:id')
       .get((req: Request, res: Response) => this.userController.read(req, res))
-      .put((req: Request, res: Response) =>
-        this.userController.update(req, res)
-      )
-      .delete((req: Request, res: Response) =>
-        this.userController.delete(req, res)
-      );
+      .put((req: Request, res: Response) => this.userController.update(req, res))
+      .delete((req: Request, res: Response) => this.userController.delete(req, res));
 
     this.router
-      .route("/users")
-      .get((req: Request, res: Response) =>
-        this.userController.paginate(req, res)
-      )
-      .post((req: Request, res: Response) =>
-        this.userController.create(req, res)
-      );
+      .route('/users')
+      .get((req: Request, res: Response) => this.userController.paginate(req, res))
+      .post((req: Request, res: Response) => this.userController.create(req, res));
   }
 }

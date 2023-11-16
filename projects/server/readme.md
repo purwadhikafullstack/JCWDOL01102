@@ -65,3 +65,4 @@ sequelize-cli model:generate                    # Generates a model and its migr
 sequelize-cli model:create                      # Generates a model and its migration
 sequelize-cli seed:generate                     # Generates a new seed file
 sequelize-cli seed:create                       # Generates a new seed file
+```

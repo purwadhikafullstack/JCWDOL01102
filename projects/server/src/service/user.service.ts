@@ -1,9 +1,9 @@
-import { Op } from "sequelize";
-import { BadRequestException } from "../helper/Error/BadRequestException/BadRequestException";
-import { NotFoundException } from "../helper/Error/NotFound/NotFoundException";
-import { removeLimitAndPage } from "../helper/function/filteredData";
-import { IPaginate } from "../helper/interface/paginate/paginate.interface";
-import Users, { UserCreationAttributes } from "../database/models/user";
+import { Op } from 'sequelize';
+import { BadRequestException } from '../helper/Error/BadRequestException/BadRequestException';
+import { NotFoundException } from '../helper/Error/NotFound/NotFoundException';
+import { removeLimitAndPage } from '../helper/function/filteredData';
+import { IPaginate } from '../helper/interface/paginate/paginate.interface';
+import Users, { UserCreationAttributes } from '../database/models/user';
 
 export default class UserService {
   async create(input: UserCreationAttributes) {
@@ -27,7 +27,7 @@ export default class UserService {
   async findOne(conditions: Partial<UserCreationAttributes>) {
     try {
       const user = await Users.findOne({ where: conditions });
-      if (!user) throw new NotFoundException("Users not found", {});
+      if (!user) throw new NotFoundException('Users not found', {});
       return user;
     } catch (error: any) {
       throw error;
@@ -37,7 +37,7 @@ export default class UserService {
   async getById(id: number) {
     try {
       const user = await Users.findByPk(id);
-      if (!user) throw new NotFoundException("Users not found", {});
+      if (!user) throw new NotFoundException('Users not found', {});
       return user;
     } catch (error: any) {
       throw error;
@@ -47,20 +47,17 @@ export default class UserService {
   async deleteById(id: number) {
     try {
       const user = await Users.destroy({ where: { id } });
-      if (!user) throw new NotFoundException("Users not found", {});
+      if (!user) throw new NotFoundException('Users not found', {});
       return user;
     } catch (error: any) {
       throw error;
     }
   }
 
-  async updateById(
-    id: number,
-    input: Partial<UserCreationAttributes>
-  ): Promise<Users> {
+  async updateById(id: number, input: Partial<UserCreationAttributes>): Promise<Users> {
     try {
       const user = await Users.update(input, { where: { id } });
-      if (!user) throw new NotFoundException("Users not found", {});
+      if (!user) throw new NotFoundException('Users not found', {});
       const result = await this.getById(id);
       return result;
     } catch (error: any) {
@@ -82,7 +79,7 @@ export default class UserService {
         },
         limit,
         offset: offset,
-        order: [["id", "DESC"]],
+        order: [['id', 'DESC']],
       });
       return users;
     } catch (error: any) {

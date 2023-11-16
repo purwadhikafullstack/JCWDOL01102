@@ -1,5 +1,5 @@
-import { DataTypes, Model, Optional } from "sequelize";
-import Database from "../../config/db";
+import { DataTypes, Model, Optional } from 'sequelize';
+import Database from '../../config/db';
 
 // Database connection instance
 const databaseInstance = Database.database;
@@ -16,14 +16,10 @@ export interface UserAttributes {
   updatedAt?: Date;
 }
 
-export interface UserCreationAttributes
-  extends Optional<UserAttributes, "id"> {}
+export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 export interface UserInstance extends Required<UserAttributes> {}
 // Sequelize Model
-class Users
-  extends Model<UserAttributes, UserCreationAttributes>
-  implements UserAttributes
-{
+class Users extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
   public name!: string;
   public email!: string;
@@ -63,7 +59,7 @@ Users.init(
     },
   },
   {
-    tableName: "users",
+    tableName: 'users',
     sequelize: databaseInstance,
   }
 );

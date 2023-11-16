@@ -1,15 +1,15 @@
-import bodyParser from "body-parser";
-import compression from "compression";
-import express from "express";
-import helmet from "helmet";
-import cors from "cors";
-import MainRouter from "./routes";
-import expressListEndpoints from "express-list-endpoints";
+import bodyParser from 'body-parser';
+import compression from 'compression';
+import express from 'express';
+import helmet from 'helmet';
+import cors from 'cors';
+import MainRouter from './routes';
+import expressListEndpoints from 'express-list-endpoints';
 
-const Reset = "\x1b[0m";
-const FgRed = "\x1b[31m";
-const FgGreen = "\x1b[32m";
-const FgYellow = "\x1b[33m";
+const Reset = '\x1b[0m';
+const FgRed = '\x1b[31m';
+const FgGreen = '\x1b[32m';
+const FgYellow = '\x1b[33m';
 
 export default class Server {
   expressInstance: express.Express;
@@ -38,18 +38,16 @@ export default class Server {
 
   private routesSetup() {
     // Instantiate mainRouter object
-    let router = new MainRouter().router;
+    const router = new MainRouter().router;
 
     // Add to server routes
-    this.expressInstance.use("/", router);
+    this.expressInstance.use('/', router);
   }
   private printRegisteredRoutes() {
     console.log(`\n`);
 
     function printLog(method: string, path: string) {
-      console.log(
-        `${FgYellow}Registered route: ${FgGreen}${method} ${path}` + Reset
-      );
+      console.log(`${FgYellow}Registered route: ${FgGreen}${method} ${path}` + Reset);
     }
     const routes = expressListEndpoints(this.expressInstance);
     routes.forEach((route: any) => {

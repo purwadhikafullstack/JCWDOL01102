@@ -1,18 +1,18 @@
 /// <reference path="../controllers/custom.d.ts" />
 
-import { NextFunction, Request, Response } from "express";
-import admin from "firebase-admin";
-import { UnauthorizedException } from "../helper/Error/UnauthorizedException/UnauthorizedException";
-import { ProcessError } from "../helper/Error/errorHandler";
+import { NextFunction, Request, Response } from 'express';
+import admin from 'firebase-admin';
+import { UnauthorizedException } from '../helper/Error/UnauthorizedException/UnauthorizedException';
+import { ProcessError } from '../helper/Error/errorHandler';
 // import JwtService from "../service/jwt.service";
 // import Users from "../database/models/user";
 
-const serviceAccount = require("../../eventopia-jcwdol-011-firebase-adminsdk-5yqm4-618f9fc9af.json");
+// const serviceAccount = require('../../eventopia-jcwdol-011-firebase-adminsdk-5yqm4-618f9fc9af.json');
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://eventopia-jcwdol-011.firebaseio.com",
-});
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+//   databaseURL: 'https://eventopia-jcwdol-011.firebaseio.com',
+// });
 
 export const firebaseAdmin = admin;
 export default class AuthMiddleware {

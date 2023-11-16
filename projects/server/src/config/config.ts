@@ -1,5 +1,5 @@
-const { readFileSync } = require("fs");
-const dotenv = require("dotenv");
+const { readFileSync } = require('fs');
+const dotenv = require('dotenv');
 dotenv.config();
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: "mysql",
+    dialect: 'mysql',
     dialectOptions: {
       bigNumberStrings: true,
     },
@@ -18,9 +18,9 @@ module.exports = {
     username: process.env.CI_DB_USERNAME,
     password: process.env.CI_DB_PASSWORD,
     database: process.env.CI_DB_NAME,
-    host: "127.0.0.1",
+    host: '127.0.0.1',
     port: 3306,
-    dialect: "mysql",
+    dialect: 'mysql',
     dialectOptions: {
       bigNumberStrings: true,
     },
@@ -31,7 +31,7 @@ module.exports = {
     database: process.env.DB_NAME,
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: "mysql",
+    dialect: 'mysql',
     dialectOptions: {
       bigNumberStrings: true,
     },

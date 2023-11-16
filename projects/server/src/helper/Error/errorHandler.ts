@@ -1,10 +1,10 @@
-import { Response } from "express";
-import { BadRequestException } from "./BadRequestException/BadRequestException";
-import { HttpStatusCode } from "axios";
-import { ForbiddenException } from "./Forbidden/ForbiddenException";
-import { UnauthorizedException } from "./UnauthorizedException/UnauthorizedException";
-import { UnprocessableEntityException } from "./UnprocessableEntity/UnprocessableEntityException";
-import { NotFoundException } from "./NotFound/NotFoundException";
+import { Response } from 'express';
+import { BadRequestException } from './BadRequestException/BadRequestException';
+import { HttpStatusCode } from 'axios';
+import { ForbiddenException } from './Forbidden/ForbiddenException';
+import { UnauthorizedException } from './UnauthorizedException/UnauthorizedException';
+import { UnprocessableEntityException } from './UnprocessableEntity/UnprocessableEntityException';
+import { NotFoundException } from './NotFound/NotFoundException';
 
 export function ProcessError(err: any, res: Response) {
   if (err instanceof BadRequestException) {
@@ -34,7 +34,7 @@ export function ProcessError(err: any, res: Response) {
     });
   } else {
     res.status(HttpStatusCode.InternalServerError).json({
-      message: err.message ?? "Internal Server Error",
+      message: err.message ?? 'Internal Server Error',
     });
   }
 }
