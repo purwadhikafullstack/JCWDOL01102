@@ -1,8 +1,8 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-const tablename = 'users';
 module.exports = {
+  // eslint-disable-next-line max-lines-per-function
   async up(queryInterface, Sequelize) {
     /**
      * Add altering commands here.
@@ -10,38 +10,38 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.createTable(tablename, {
+    await queryInterface.createTable('provinces', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
       name: {
-        type: Sequelize.STRING(255),
-        allowNull: true,
+        type: Sequelize.STRING,
+        allowNull: false,
       },
-      email: {
-        type: Sequelize.STRING(255),
-        allowNull: true,
+      province_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
-      password: {
-        type: Sequelize.STRING(255),
-      },
-      uniqueId: {
-        type: Sequelize.STRING(255),
-        allowNull: true,
-      },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        allowNull: false,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+        allowNull: false,
+      },
+      deleted_at: {
+        type: Sequelize.DATE,
+        defaultValue: null,
       },
     });
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async down(queryInterface, Sequelize) {
     /**
      * Add reverting commands here.
@@ -49,6 +49,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.dropTable(tablename);
+    await queryInterface.dropTable('provinces');
   },
 };
