@@ -4,10 +4,16 @@ import { NotFoundException } from '../helper/Error/NotFound/NotFoundException';
 import { removeLimitAndPage } from '../helper/function/filteredData';
 import { IPaginate } from '../helper/interface/paginate/paginate.interface';
 import Users, { UserCreationAttributes } from '../database/models/user';
+import bcrypt from 'bcrypt';
+import generateReferral from '../helper/function/generatReferral';
 
 export default class UserService {
   async create(input: UserCreationAttributes) {
     try {
+      const hashed = await bcrypt.hash(input.password, 10);
+      input.password = hashed;
+      input.referral_code = generateReferral(10);
+
       const user = await Users.create(input);
       return user;
     } catch (error: any) {
