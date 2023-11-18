@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import UserRoute from './user/user.route';
+import { UserController } from '../controllers/user';
 
 export default class MainRouter {
   router: Router;
@@ -18,5 +19,16 @@ export default class MainRouter {
         message: 'Welcome to the API',
       });
     });
+
+    //   this.router
+    //     .route('/users/:id')
+    //     .get((req: Request, res: Response) => this.userController.read(req, res))
+    //     .put((req: Request, res: Response) => this.userController.update(req, res))
+    //     .delete((req: Request, res: Response) => this.userController.delete(req, res));
+
+    //   this.router
+    //     .route('/users')
+    //     .get((req: Request, res: Response) => this.userController.paginate(req, res))
+    //     .post((req: Request, res: Response) => this.userController.create(req, res));
   }
 }

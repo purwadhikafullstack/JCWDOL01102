@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import sequelize, { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import configConstants from './constants';

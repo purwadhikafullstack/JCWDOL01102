@@ -5,10 +5,10 @@ import helmet from 'helmet';
 import cors from 'cors';
 import MainRouter from './routes';
 import expressListEndpoints from 'express-list-endpoints';
-import UserRoute from './routes/user/user.route';
+import ConfigRouter from './routes/config/config';
 
 const Reset = '\x1b[0m';
-const FgRed = '\x1b[31m';
+// const FgRed = '\x1b[31m';
 const FgGreen = '\x1b[32m';
 const FgYellow = '\x1b[33m';
 
@@ -40,11 +40,11 @@ export default class Server {
   private routesSetup() {
     // Instantiate mainRouter object
     const router = new MainRouter().router;
-    const userRoute = new UserRoute().getRouteInstance();
+    const configRouter = new ConfigRouter().router;
 
     // Add to server routes
     this.expressInstance.use('/', router);
-    this.expressInstance.use('/', userRoute);
+    this.expressInstance.use('/api/config', configRouter);
   }
   private printRegisteredRoutes() {
     console.log(`\n`);
