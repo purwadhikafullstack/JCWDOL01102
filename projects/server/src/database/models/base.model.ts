@@ -14,7 +14,7 @@ export interface BaseModelAttributes {
   id: number;
   createdAt: Date;
   updatedAt: Date;
-  deletedAt: Date;
+  deletedAt: Date | null;
 }
 
 class BaseModel<
@@ -24,7 +24,7 @@ class BaseModel<
   public id!: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-  public readonly deletedAt!: Date;
+  public readonly deletedAt!: Date | null;
 
   static async paginate(
     page: number,

@@ -1,11 +1,14 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import bodyParser from 'body-parser';
 import compression from 'compression';
-import express from 'express';
+import express, { NextFunction, Response } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import MainRouter from './routes';
 import expressListEndpoints from 'express-list-endpoints';
 import ConfigRouter from './routes/config/config';
+import { messages } from './config/message';
 
 const Reset = '\x1b[0m';
 // const FgRed = '\x1b[31m';
@@ -45,6 +48,13 @@ export default class Server {
     // Add to server routes
     this.expressInstance.use('/', router);
     this.expressInstance.use('/api/config', configRouter);
+    // @ts-ignore
+    this.expressInstance.use((_req: Request, res: Response, _next: NextFunction) => {
+      res.status(404).send({
+        statusCode: 404,
+        message: messages.NOT_FOUND,
+      });
+    });
   }
   private printRegisteredRoutes() {
     console.log(`\n`);
