@@ -1,11 +1,10 @@
 import { Request, Response, Router } from 'express';
-import { UserController } from '../../controllers/user';
+import { UserController } from '../../controllers/user/user.controller';
 import { AuthMiddleware } from '../../middleware/auth.middleware';
-import { body } from 'express-validator';
-import { inputValidationsChain } from '../../helper/validator/postUser.validator';
+import { userCreationValidations, userEmailQueryValidation } from '../../helper/validator/user/user.validator';
 
-export default class UserRoute {
-  private router: Router;
+export default class userRouter {
+  router: Router;
   private userController: UserController;
   constructor() {
     this.router = Router({ mergeParams: true });
@@ -14,21 +13,15 @@ export default class UserRoute {
   }
 
   serve() {
-    this.router
-      .route('/users/:id')
-      .get((req: Request, res: Response) => this.userController.read(req, res))
-      .put((req: Request, res: Response) => this.userController.update(req, res))
-      .delete((req: Request, res: Response) => this.userController.delete(req, res));
+    this.router.route('/users/:id').get((req: Request, res: Response) => this.userController.read(req, res));
 
     this.router
       .route('/users')
-      .get((req: Request, res: Response) => this.userController.paginate(req, res))
-      .post(AuthMiddleware.InputValidator(inputValidationsChain), (req: Request, res: Response) =>
+      .post(AuthMiddleware.InputValidator(userCreationValidations), (req: Request, res: Response) =>
         this.userController.create(req, res)
-      );
-  }
-
-  getRouteInstance() {
-    return this.router;
+      )
+      .get(AuthMiddleware.InputValidator(userEmailQueryValidation), (req: Request, res: Response) => {
+        this.userController.findUserByEmail(req, res);
+      });
   }
 }

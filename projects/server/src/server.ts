@@ -6,6 +6,7 @@ import cors from 'cors';
 import MainRouter from './routes';
 import expressListEndpoints from 'express-list-endpoints';
 import ConfigRouter from './routes/config/config';
+import UserRouter from './routes/user/user.route';
 
 const Reset = '\x1b[0m';
 // const FgRed = '\x1b[31m';
@@ -41,10 +42,12 @@ export default class Server {
     // Instantiate mainRouter object
     const router = new MainRouter().router;
     const configRouter = new ConfigRouter().router;
+    const userRouter = new UserRouter().router;
 
     // Add to server routes
     this.expressInstance.use('/', router);
     this.expressInstance.use('/api/config', configRouter);
+    this.expressInstance.use('/api', userRouter);
   }
   private printRegisteredRoutes() {
     console.log(`\n`);

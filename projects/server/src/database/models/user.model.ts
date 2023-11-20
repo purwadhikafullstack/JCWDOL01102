@@ -1,34 +1,32 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+import { DataTypes, Optional } from 'sequelize';
 import Database from '../../config/db';
+import BaseModel, { BaseModelAttributes } from './base.model';
 
 // Database connection instance
 const databaseInstance = Database.database;
 
 // User Interface
-export interface UserAttributes {
-  id: number;
-  image_id?: number | null;
+export interface UserAttributes extends BaseModelAttributes {
+  image_id: number | null;
   branch_id?: number | null;
   name: string;
   email: string;
   address: string;
-  phone_number: string;
-  referral_code: string | null;
+  phoneNumber: string;
+  referralCode: string | null;
   role_id: number;
   birthdate?: Date | null;
-  is_deleted: boolean;
-  is_verified: boolean;
-  reset_password_token?: string | null;
-  verify_token?: string | null;
+  isDeleted: boolean;
+  isVerified: boolean;
+  resetPasswordToken?: string | null;
+  verifyToken?: string | null;
   password: string;
-  created_at?: Date;
-  updated_at?: Date;
 }
 
 export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
-export interface UserInstance extends Required<UserAttributes> {}
+// export interface UserInstance extends Required<UserAttributes> {}
 // Sequelize Model
-class Users extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
+class Users extends BaseModel<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
   public image_id!: number | null;
   public branch_id!: number | null;
@@ -36,16 +34,17 @@ class Users extends Model<UserAttributes, UserCreationAttributes> implements Use
   public email!: string;
   public password!: string;
   public address!: string;
-  public phone_number!: string;
-  public referral_code!: string | null;
+  public phoneNumber!: string;
+  public referralCode!: string | null;
   public role_id!: number;
   public birthdate!: Date | null;
-  public is_deleted!: boolean;
-  public is_verified!: boolean;
-  public reset_password_token!: string | null;
-  public verify_token!: string | null;
-  public readonly created_at!: Date;
-  public readonly updated_at!: Date;
+  public isDeleted!: boolean;
+  public isVerified!: boolean;
+  public resetPasswordToken!: string | null;
+  public verifyToken!: string | null;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+  public readonly deletedAt!: Date;
 }
 
 Users.init(
@@ -75,13 +74,15 @@ Users.init(
       type: new DataTypes.STRING(255),
       allowNull: true,
     },
-    phone_number: {
+    phoneNumber: {
       type: new DataTypes.STRING(255),
       allowNull: false,
+      field: 'phone_number',
     },
-    referral_code: {
+    referralCode: {
       type: new DataTypes.STRING(255),
       allowNull: false,
+      field: 'referral_code',
     },
     role_id: {
       type: DataTypes.INTEGER,
@@ -91,29 +92,40 @@ Users.init(
       type: DataTypes.DATE,
       allowNull: true,
     },
-    is_deleted: {
+    isDeleted: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      field: 'is_deleted',
     },
-    is_verified: {
+    isVerified: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      field: 'is_verified',
     },
-    reset_password_token: {
+    resetPasswordToken: {
       type: new DataTypes.STRING(255),
       allowNull: true,
+      field: 'reset_password_token',
     },
-    verify_token: {
+    verifyToken: {
       type: new DataTypes.STRING(255),
       allowNull: true,
+      field: 'verify_token',
     },
-    created_at: {
+    createdAt: {
       type: DataTypes.DATE(),
       allowNull: true,
+      field: 'created_at',
     },
-    updated_at: {
+    updatedAt: {
       type: DataTypes.DATE(),
       allowNull: true,
+      field: 'updated_at',
+    },
+    deletedAt: {
+      type: DataTypes.DATE(),
+      allowNull: true,
+      field: 'created_at',
     },
   },
   {

@@ -1,19 +1,20 @@
 import { Router } from 'express';
-import UserRoute from './user/user.route';
-import { UserController } from '../controllers/user';
+import { UserController } from '../controllers/user/user.controller';
 
 export default class MainRouter {
   router: Router;
-  userRoute: UserRoute;
+  userController: UserController;
 
   constructor() {
+    // Initialize controllers objects
+    this.userController = new UserController();
+
     // Initialize router object
-    this.router = Router();
-    this.userRoute = new UserRoute();
-    this.serve();
+    this.router = Router({ mergeParams: true });
+    this.userRoutes();
   }
 
-  private serve() {
+  private userRoutes() {
     this.router.get('/', (req, res) => {
       res.json({
         message: 'Welcome to the API',
