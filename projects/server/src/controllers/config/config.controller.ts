@@ -42,16 +42,32 @@ export class ConfigController {
     }
   }
 
-  //   async paginate(req: Request, res: Response<IResponse<ConfigAttributes>>): Promise<void> {
-  //     try {
-  //       const result = await this.configService.paginate();
-  //       res.status(HttpStatusCode.Ok).send({
-  //         statusCode: HttpStatusCode.Ok,
-  //         message: messages.SUCCESS,
-  //         data: result ?? {},
-  //       });
-  //     } catch (error) {
-  //       ProcessError(error, res);
-  //     }
-  //   }
+  async deleteConfigById(req: Request, res: Response<IResponse<any>>): Promise<void> {
+    try {
+      const { id } = req.params;
+      await this.configService.deleteConfigById(parseInt(id));
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async deleteConfig(req: Request, res: Response<IResponse<any>>): Promise<void> {
+    try {
+      const { module, name } = req.query;
+      await this.configService.deleteConfig({
+        module: <string>module,
+        name: <string>name,
+      });
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }

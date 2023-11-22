@@ -13,10 +13,10 @@ export default class userRouter {
   }
 
   serve() {
-    this.router.route('/users/:id').get((req: Request, res: Response) => this.userController.read(req, res));
-
+    this.router.route('/:id').get((req: Request, res: Response) => this.userController.read(req, res));
+    this.router.route('/:id').put((req: Request, res: Response) => this.userController.updateById(req, res));
     this.router
-      .route('/users')
+      .route('/')
       .post(AuthMiddleware.InputValidator(userCreationValidations), (req: Request, res: Response) =>
         this.userController.create(req, res)
       )
