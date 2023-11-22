@@ -1,8 +1,9 @@
+/// <reference path="../custom.d.ts" />
 import UserService from '../../service/users/user.service';
 import { HttpStatusCode } from 'axios';
 import { ProcessError } from '../../helper/Error/errorHandler';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
-import { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
+import Users, { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
 import { Request, Response } from 'express';
 import { ICheckEmail, IResponse, IUserBodyReq } from '../interface';
 import { messages } from '../../config/message';
@@ -25,7 +26,6 @@ export class UserController {
       const id = Number(req.params.id);
       if (!id) throw new BadRequestException('Invalid id', {});
       const user = await this.userServices.getById(id);
-
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -107,18 +107,19 @@ export class UserController {
     }
   }
 
-  // async update(req: Request, res: Response) {
-  //   try {
-  //     const [affectedRows] = await Users.update(req.body, {
-  //       where: { id: req.params.id },
-  //     });
-  //     res.json({
-  //       affectedRows: affectedRows || 0,
-  //     });
-  //   } catch (err) {
-  //     ProcessError(err, res);
-  //   }
-  // }
+  async updateById(req: Request, res: Response<IResponse<Users>>) {
+    try {
+      const result = await this.userServices.updateById(Number(req.params.id), req.body);
+
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: result ?? {},
+      });
+    } catch (err) {
+      ProcessError(err, res);
+    }
+  }
 
   // async delete(req: Request, res: Response) {
   //   try {
