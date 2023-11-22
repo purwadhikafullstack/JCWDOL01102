@@ -1,9 +1,5 @@
 import { DataTypes, Optional } from 'sequelize';
-import Database from '../../config/db';
-import BaseModel, { BaseModelAttributes } from './base.model';
-
-// Database connection instance
-const databaseInstance = Database.database;
+import BaseModel, { BaseModelAttributes, baseModelConfig } from './base.model';
 
 // User Interface
 export interface UserAttributes extends BaseModelAttributes {
@@ -129,8 +125,8 @@ Users.init(
     },
   },
   {
+    ...baseModelConfig,
     tableName: 'users',
-    sequelize: databaseInstance,
     timestamps: false,
   }
 );

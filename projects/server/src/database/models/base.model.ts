@@ -170,5 +170,6 @@ export const baseModelConfig = {
   timestamps: true,
   paranoid: true,
   underscored: true,
+  sync: { force: false },
 };
 export default BaseModel;

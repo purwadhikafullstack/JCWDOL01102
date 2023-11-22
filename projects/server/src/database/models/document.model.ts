@@ -1,8 +1,6 @@
 import { DataTypes, Optional } from 'sequelize';
-import Database from '../../config/db';
-import BaseModel, { BaseModelAttributes } from './base.model';
 
-const databaseInstance = Database.database;
+import BaseModel, { BaseModelAttributes, baseModelConfig } from './base.model';
 
 export interface DocumentAttributes extends BaseModelAttributes {
   bucketName?: string;
@@ -76,8 +74,8 @@ Documents.init(
     },
   },
   {
+    ...baseModelConfig,
     tableName: 'documents',
-    sequelize: databaseInstance,
     timestamps: false,
   }
 );
