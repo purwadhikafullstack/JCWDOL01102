@@ -7,7 +7,7 @@ import { UnprocessableEntityException } from './UnprocessableEntity/Unprocessabl
 import { NotFoundException } from './NotFound/NotFoundException';
 
 export function ProcessError(err: any, res: Response) {
-  console.log(JSON.stringify(err));
+  console.log(err);
   if (err instanceof BadRequestException) {
     res.status(HttpStatusCode.BadRequest).json({
       statusCode: HttpStatusCode.BadRequest,
