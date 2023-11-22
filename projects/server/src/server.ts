@@ -9,6 +9,7 @@ import MainRouter from './routes';
 import expressListEndpoints from 'express-list-endpoints';
 import ConfigRouter from './routes/config/config';
 import { messages } from './config/message';
+import UserRouter from './routes/user/user.route';
 
 const Reset = '\x1b[0m';
 // const FgRed = '\x1b[31m';
@@ -44,6 +45,7 @@ export default class Server {
     // Instantiate mainRouter object
     const router = new MainRouter().router;
     const configRouter = new ConfigRouter().router;
+    const userRouter = new UserRouter().router;
 
     // Add to server routes
     this.expressInstance.use('/', router);
@@ -55,6 +57,7 @@ export default class Server {
         message: messages.NOT_FOUND,
       });
     });
+    this.expressInstance.use('/api', userRouter);
   }
   private printRegisteredRoutes() {
     console.log(`\n`);

@@ -12,9 +12,9 @@ interface SearchCondition {
 
 export interface BaseModelAttributes {
   id: number;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
+  deletedAt?: Date;
 }
 
 class BaseModel<
