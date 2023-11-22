@@ -76,7 +76,6 @@ Documents.init(
   {
     ...baseModelConfig,
     tableName: 'documents',
-    timestamps: false,
   }
 );
 
