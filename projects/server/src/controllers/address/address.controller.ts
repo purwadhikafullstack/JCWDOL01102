@@ -28,4 +28,65 @@ export class AddressController {
       ProcessError(error, res);
     }
   }
+
+  async getAddressList(req: Request, res: Response<IResponse<Addresses[]>>): Promise<void> {
+    try {
+      const { id } = req.params;
+      const result = await this.addressService.getAddressList(parseInt(id));
+
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async changeDefaultAddress(req: Request, res: Response<IResponse<Addresses>>): Promise<void> {
+    try {
+      const { id, addressId } = req.params;
+      const result = await this.addressService.changeDefaultAddress(parseInt(id), parseInt(addressId));
+
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async updateAddress(req: Request, res: Response<IResponse<Addresses>>): Promise<void> {
+    try {
+      const { id, addressId } = req.params;
+      const input = req.body;
+      const result = await this.addressService.updateAddress(parseInt(id), parseInt(addressId), input);
+
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async getAddressById(req: Request, res: Response<IResponse<Addresses>>): Promise<void> {
+    try {
+      const { id, addressId } = req.params;
+      const result = await this.addressService.getAddressById(parseInt(id), parseInt(addressId));
+
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }

@@ -3,6 +3,8 @@ import BaseModel, { BaseModelAttributes, baseModelInit, baseModelConfig } from '
 
 export interface AddressAttributes extends BaseModelAttributes {
   name: string;
+  receiverName: string;
+  phoneNumber: string;
   address: string;
   provinceId: number;
   userId: number;
@@ -18,6 +20,8 @@ export interface AddressUpdateAttributes extends Partial<AddressAttributes> {}
 
 class Addresses extends BaseModel<AddressAttributes, AddressCreationAttributes> implements AddressAttributes {
   public name!: string;
+  public receiverName!: string;
+  public phoneNumber!: string;
   public address!: string;
   public provinceId!: number;
   public userId!: number;
@@ -32,6 +36,14 @@ Addresses.init(
   {
     ...baseModelInit,
     name: {
+      type: new DataTypes.STRING(255),
+      allowNull: false,
+    },
+    receiverName: {
+      type: new DataTypes.STRING(255),
+      allowNull: false,
+    },
+    phoneNumber: {
       type: new DataTypes.STRING(255),
       allowNull: false,
     },
