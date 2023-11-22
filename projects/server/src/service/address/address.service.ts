@@ -28,6 +28,7 @@ export class AddressService {
   async updateAddress(id: number, addressId: number, input: AddressCreationAttributes): Promise<Addresses> {
     const isExists = await Addresses.findOne({ where: { id: addressId, userId: id } });
     if (!isExists) throw new UnprocessableEntityException('Address not found', { id: addressId });
+    if (input.isDefault) await Addresses.bulkUpdate({ isDefault: false }, { userId: id });
     const nameExists = await Addresses.findOne({ where: { name: input.name, userId: id } });
     if (nameExists && isExists.id !== nameExists.id)
       throw new UnprocessableEntityException('Address name already exists', { name: input.name });
