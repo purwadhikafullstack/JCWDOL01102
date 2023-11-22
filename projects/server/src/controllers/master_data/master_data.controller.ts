@@ -24,4 +24,18 @@ export class MasterDataController {
       ProcessError(error, res);
     }
   }
+
+  async getAllDistricts(req: Request, res: Response<IResponse<any>>) {
+    try {
+      const province_id = req.query.province_id ? Number(req.query.province_id) : undefined;
+      const districts = await this.masterDataService.getAllCities(province_id);
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: districts,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }

@@ -13,5 +13,6 @@ export class MasterDataRouter {
 
   private masterDataRoutes() {
     this.router.route('/provinces').get((req, res) => this.masterDataController.getAllProvinces(req, res));
+    this.router.route('/cities').get((req, res) => this.masterDataController.getAllDistricts(req, res));
   }
 }
