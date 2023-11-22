@@ -47,17 +47,20 @@ export default class Server {
     const configRouter = new ConfigRouter().router;
     const userRouter = new UserRouter().router;
 
-    // Add to server routes
+    // Add to server routes the mainRouter, the api routes should be added before the 404 route
+    // The first api name should be "/api" , e.g. /api/users
     this.expressInstance.use('/', router);
     this.expressInstance.use('/api/config', configRouter);
+    this.expressInstance.use('/api/users', userRouter);
+
+    // Register 404 route , this should be the last route
     // @ts-ignore
     this.expressInstance.use((_req: Request, res: Response, _next: NextFunction) => {
       res.status(404).send({
         statusCode: 404,
-        message: messages.NOT_FOUND,
+        message: messages.API_NOT_FOUND,
       });
     });
-    this.expressInstance.use('/api', userRouter);
   }
   private printRegisteredRoutes() {
     console.log(`\n`);
