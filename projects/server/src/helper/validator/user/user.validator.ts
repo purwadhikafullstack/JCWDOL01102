@@ -3,6 +3,13 @@
 
 import { body, query } from 'express-validator';
 import validate from '../../function/expressValidator';
+import UserService from '../../../service/users/user.service';
+import { IResponse, IUserBodyReq } from '../../../controllers/interface';
+import { NextFunction, Request, Response } from 'express';
+import { UserAttributes } from '../../../database/models/user.model';
+import { HttpStatusCode } from 'axios';
+import { NotFoundException } from '../../Error/NotFound/NotFoundException';
+
 export const createUserValidation = () =>
   validate([
     body('name').notEmpty().isString(),
@@ -16,6 +23,37 @@ export const createUserValidation = () =>
   ]);
 
 export const createSendEmailValidation = () =>
-  validate([query('email').notEmpty().isEmail().isString(), query('name').notEmpty().isString()]);
+  validate([
+    query('email').notEmpty().isEmail().isString(),
+    query('name').notEmpty().isString(),
+    query('id').notEmpty().isInt(),
+  ]);
 
 export const createUserEmailValidation = () => validate([query('email').notEmpty().isEmail().isString()]);
+
+export const userExistValidation =
+  () => async (req: Request, res: Response<IResponse<UserAttributes>>, next: NextFunction) => {
+    try {
+      const userService = new UserService();
+      const body: IUserBodyReq = req.body;
+      const user = await userService.findOne({ email: body.email });
+      if (user) {
+        res.status(HttpStatusCode.BadRequest).send({
+          statusCode: HttpStatusCode.BadRequest,
+          message: 'User with this email is already exist',
+        });
+      } else {
+        return next();
+      }
+    } catch (e: any) {
+      console.log(e);
+      if (e instanceof NotFoundException) {
+        return next();
+      } else {
+        res.status(HttpStatusCode.InternalServerError).send({
+          statusCode: HttpStatusCode.InternalServerError,
+          message: 'Server Error',
+        });
+      }
+    }
+  };

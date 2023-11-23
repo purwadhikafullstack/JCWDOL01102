@@ -4,6 +4,7 @@ import {
   createSendEmailValidation,
   createUserEmailValidation,
   createUserValidation,
+  userExistValidation,
 } from '../../helper/validator/user/user.validator';
 
 export default class userRouter {
@@ -18,11 +19,12 @@ export default class userRouter {
   serve() {
     this.router
       .route('/')
-      .post(createUserValidation(), (req: Request, res: Response) => this.userController.create(req, res))
+      .post(createUserValidation(), userExistValidation(), (req: Request, res: Response) =>
+        this.userController.create(req, res)
+      )
       .get(createUserEmailValidation(), (req: Request, res: Response) => {
         this.userController.findUserByEmail(req, res);
-      })
-      .put((req: Request, res: Response) => this.userController.updateByEmail(req, res));
+      });
     this.router
       .route('/email')
       .get(createSendEmailValidation(), (req: Request, res: Response) => this.userController.sendEmail(req, res));

@@ -39,7 +39,6 @@ export class UserController {
   async create(req: Request, res: Response<IResponse<UserAttributes>>) {
     try {
       // await validate(postUserValidator, req.body);
-      console.log(req.body);
       const attr: IUserBodyReq = req.body;
       const hashedPass = await bcrypt.hash(attr.password, 10);
       attr.password = hashedPass;
@@ -118,27 +117,13 @@ export class UserController {
     }
   }
 
-  async updateByEmail(req: Request, res: Response<IResponse<Users>>) {
-    try {
-      console.log(req.body);
-      const email = req.body.email as string;
-      const user = await this.userServices.updateByEmail(email, { isVerified: true });
-      res.status(HttpStatusCode.Ok).send({
-        statusCode: HttpStatusCode.Ok,
-        message: messages.SUCCESS,
-        data: user ?? {},
-      });
-    } catch (e: any) {
-      ProcessError(e, res);
-    }
-  }
-
   async sendEmail(req: Request, res: Response<IResponse<IMailerResponse>>) {
     try {
       const email = req.query.email as string;
       const name = req.query.name as string;
+      const id = parseInt(req.query.id as string);
       const emailService = new MailerService();
-      const info: SMTPTransport.SentMessageInfo = await emailService.sendEmail(email, name);
+      const info: SMTPTransport.SentMessageInfo = await emailService.sendEmail(id, email, name);
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Email was successfully sent',

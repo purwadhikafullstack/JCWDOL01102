@@ -19,14 +19,14 @@ export default class MailerService {
     });
   }
 
-  async sendEmail(recipient: string, name: string): Promise<any> {
+  async sendEmail(id: number, recipient: string, name: string): Promise<any> {
     // eslint-disable-next-line no-useless-catch
     try {
       const transporter = this.createConnection();
       const filePath = path.join(path.resolve(__dirname), '../', 'view', 'verifyTemplate.html');
       const htmlFile = fs.readFileSync(filePath, 'utf-8');
       const template = Handlebars.compile(htmlFile);
-      const redirectLink = `http://localhost:5173/api/user-verification?email=${recipient}`;
+      const redirectLink = `http://localhost:5173/user-verification/${id}`;
       const replacement = {
         name: name,
         redirectLink,
