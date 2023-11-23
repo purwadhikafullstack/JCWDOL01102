@@ -26,7 +26,7 @@ export default class MailerService {
       const filePath = path.join(path.resolve(__dirname), '../', 'view', 'verifyTemplate.html');
       const htmlFile = fs.readFileSync(filePath, 'utf-8');
       const template = Handlebars.compile(htmlFile);
-      const redirectLink = `http://localhost:5173/user-verification/${id}`;
+      const redirectLink = `http://${configConstants.FE_HOST}:${configConstants.FE_PORT}/user-verification/${id}`;
       const replacement = {
         name: name,
         redirectLink,
