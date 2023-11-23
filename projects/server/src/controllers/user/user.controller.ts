@@ -123,16 +123,7 @@ export class UserController {
     }
   }
 
-  // async update(req: Request, res: Response) {
-  //   try {
-  //     const user = await this.userServices.updateByEmail()
-  //     res.json({
-  //       affectedRows: affectedRows || 0,
-  //     });
-  //   } catch (err) {
-  //     ProcessError(err, res);
-  //   }
-  // }
+
 
   // async delete(req: Request, res: Response) {
   //   try {
