@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
 import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
 import { removeLimitAndPage } from '../../helper/function/filteredData';
@@ -69,6 +69,18 @@ export default class UserService {
       const user = await Users.update(input, { where: { id } });
       if (!user) throw new NotFoundException('Users not found', {});
       const result = await this.getById(id);
+      return result;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  async updateByEmail(email: string, input: Partial<UserCreationAttributes>): Promise<Users> {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const user = await Users.update(input, { where: { email } });
+      if (!user) throw new NotFoundException('Users not found', {});
+      const result = await this.findOne({ email: email });
       return result;
     } catch (error: any) {
       throw error;

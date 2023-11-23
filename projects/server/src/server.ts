@@ -45,9 +45,9 @@ export default class Server {
     const userRouter = new UserRouter().router;
 
     // Add to server routes
-    this.expressInstance.use('/', router);
     this.expressInstance.use('/api/config', configRouter);
-    this.expressInstance.use('/api', userRouter);
+    this.expressInstance.use('/api/users', userRouter);
+    this.expressInstance.use('/', router);
   }
   private printRegisteredRoutes() {
     console.log(`\n`);

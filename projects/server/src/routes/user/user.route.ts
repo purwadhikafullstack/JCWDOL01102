@@ -13,15 +13,23 @@ export default class userRouter {
   }
 
   serve() {
-    this.router.route('/users/:id').get((req: Request, res: Response) => this.userController.read(req, res));
+    // this.router.route('/users/:id').get((req: Request, res: Response) => this.userController.read(req, res));
 
     this.router
-      .route('/users')
-      .post(AuthMiddleware.InputValidator(userCreationValidations), (req: Request, res: Response) =>
-        this.userController.create(req, res)
+      .route('/')
+      .post(
+        AuthMiddleware.InputValidator(userCreationValidations),
+        AuthMiddleware.userExistValidation,
+        (req: Request, res: Response) => this.userController.create(req, res)
       )
       .get(AuthMiddleware.InputValidator(userEmailQueryValidation), (req: Request, res: Response) => {
         this.userController.findUserByEmail(req, res);
       });
+
+    this.router.get(
+      '/email',
+      AuthMiddleware.InputValidator(userEmailQueryValidation),
+      (req: Request, res: Response) => this.userController.sendEmail(req, res)
+    );
   }
 }
