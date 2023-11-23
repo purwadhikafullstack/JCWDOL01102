@@ -15,5 +15,7 @@ export default class ConfigRouter {
   private configRoutes() {
     this.router.route('/').get((req, res) => this.configController.getConfig(req, res));
     this.router.route('/').post(createConfigValidator(), (req, res) => this.configController.createConfig(req, res));
+    this.router.route('/:id').delete((req, res) => this.configController.deleteConfigById(req, res));
+    this.router.route('/').delete((req, res) => this.configController.deleteConfig(req, res));
   }
 }

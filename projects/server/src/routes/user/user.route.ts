@@ -1,7 +1,10 @@
 import { Request, Response, Router } from 'express';
 import { UserController } from '../../controllers/user/user.controller';
-import { AuthMiddleware } from '../../middleware/auth.middleware';
-import { userCreationValidations, userEmailQueryValidation } from '../../helper/validator/user/user.validator';
+import {
+  createSendEmailValidation,
+  createUserEmailValidation,
+  createUserValidation,
+} from '../../helper/validator/user/user.validator';
 
 export default class userRouter {
   router: Router;
@@ -13,23 +16,17 @@ export default class userRouter {
   }
 
   serve() {
-    // this.router.route('/users/:id').get((req: Request, res: Response) => this.userController.read(req, res));
-
     this.router
       .route('/')
-      .post(
-        AuthMiddleware.InputValidator(userCreationValidations),
-        AuthMiddleware.userExistValidation,
-        (req: Request, res: Response) => this.userController.create(req, res)
-      )
-      .get(AuthMiddleware.InputValidator(userEmailQueryValidation), (req: Request, res: Response) => {
+      .post(createUserValidation(), (req: Request, res: Response) => this.userController.create(req, res))
+      .get(createUserEmailValidation(), (req: Request, res: Response) => {
         this.userController.findUserByEmail(req, res);
-      });
-
-    this.router.get(
-      '/email',
-      AuthMiddleware.InputValidator(userEmailQueryValidation),
-      (req: Request, res: Response) => this.userController.sendEmail(req, res)
-    );
+      })
+      .put((req: Request, res: Response) => this.userController.updateByEmail(req, res));
+    this.router
+      .route('/email')
+      .get(createSendEmailValidation(), (req: Request, res: Response) => this.userController.sendEmail(req, res));
+    this.router.route('/:id').get((req: Request, res: Response) => this.userController.read(req, res));
+    this.router.route('/:id').put((req: Request, res: Response) => this.userController.updateById(req, res));
   }
 }

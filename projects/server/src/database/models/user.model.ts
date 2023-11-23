@@ -1,9 +1,5 @@
 import { DataTypes, Optional } from 'sequelize';
-import Database from '../../config/db';
-import BaseModel, { BaseModelAttributes } from './base.model';
-
-// Database connection instance
-const databaseInstance = Database.database;
+import BaseModel, { BaseModelAttributes, baseModelConfig, baseModelInit } from './base.model';
 
 // User Interface
 export interface UserAttributes extends BaseModelAttributes {
@@ -49,11 +45,7 @@ class Users extends BaseModel<UserAttributes, UserCreationAttributes> implements
 
 Users.init(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
+    ...baseModelInit,
     image_id: {
       type: DataTypes.INTEGER(),
       allowNull: true,
@@ -112,26 +104,10 @@ Users.init(
       allowNull: true,
       field: 'verify_token',
     },
-    createdAt: {
-      type: DataTypes.DATE(),
-      allowNull: true,
-      field: 'created_at',
-    },
-    updatedAt: {
-      type: DataTypes.DATE(),
-      allowNull: true,
-      field: 'updated_at',
-    },
-    deletedAt: {
-      type: DataTypes.DATE(),
-      allowNull: true,
-      field: 'created_at',
-    },
   },
   {
+    ...baseModelConfig,
     tableName: 'users',
-    sequelize: databaseInstance,
-    timestamps: false,
   }
 );
 

@@ -1,19 +1,13 @@
-import { Op, where } from 'sequelize';
+import { Op } from 'sequelize';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
 import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
 import { removeLimitAndPage } from '../../helper/function/filteredData';
 import { IPaginate } from '../../helper/interface/paginate/paginate.interface';
-import Users, { UserCreationAttributes } from '../../database/models/user.model';
-import bcrypt from 'bcrypt';
-import generateReferral from '../../helper/function/generatReferral';
+import Users, { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
 
 export default class UserService {
   async create(input: UserCreationAttributes) {
     try {
-      const hashed = await bcrypt.hash(input.password, 10);
-      input.password = hashed;
-      input.referralCode = generateReferral(10);
-
       const user = await Users.create(input);
       return user;
     } catch (error: any) {
@@ -66,7 +60,7 @@ export default class UserService {
   async updateById(id: number, input: Partial<UserCreationAttributes>): Promise<Users> {
     // eslint-disable-next-line no-useless-catch
     try {
-      const user = await Users.update(input, { where: { id } });
+      const user = await Users.updateById<UserAttributes>(id, input);
       if (!user) throw new NotFoundException('Users not found', {});
       const result = await this.getById(id);
       return result;

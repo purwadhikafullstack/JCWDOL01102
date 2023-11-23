@@ -27,6 +27,7 @@ server.on('error', (error: NodeJS.ErrnoException, res: Response) => {
   res.status(500).send('Internal Server Error');
 });
 server.on('listening', onListening);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 server.on('request', (req: Request, res) => {
   console.log(
     JSON.stringify({

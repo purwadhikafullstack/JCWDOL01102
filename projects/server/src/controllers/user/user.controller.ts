@@ -1,8 +1,9 @@
+/// <reference path="../custom.d.ts" />
 import UserService from '../../service/users/user.service';
 import { HttpStatusCode } from 'axios';
 import { ProcessError } from '../../helper/Error/errorHandler';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
-import { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
+import Users, { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
 import { Request, Response } from 'express';
 import { ICheckEmail, IMailerResponse, IResponse, IUserBodyReq } from '../interface';
 import { messages } from '../../config/message';
@@ -24,7 +25,6 @@ export class UserController {
       const id = Number(req.params.id);
       if (!id) throw new BadRequestException('Invalid id', {});
       const user = await this.userServices.getById(id);
-
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -62,6 +62,9 @@ export class UserController {
         birthdate: null,
         resetPasswordToken: null,
         verifyToken: null,
+        createdAt: null,
+        updatedAt: null,
+        deletedAt: null,
       };
 
       const user = await this.userServices.create(newUserAttr);
@@ -79,8 +82,7 @@ export class UserController {
   async findUserByEmail(req: Request, res: Response<IResponse<ICheckEmail>>) {
     try {
       const email = req.query.email;
-      const user = await this.userServices.findOne({ email: email as string });
-      console.log(user.toJSON());
+      await this.userServices.findOne({ email: email as string });
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Email is already in use',
@@ -102,13 +104,41 @@ export class UserController {
     }
   }
 
+  async updateById(req: Request, res: Response<IResponse<Users>>) {
+    try {
+      const result = await this.userServices.updateById(Number(req.params.id), req.body);
+
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: result ?? {},
+      });
+    } catch (err) {
+      ProcessError(err, res);
+    }
+  }
+
+  async updateByEmail(req: Request, res: Response<IResponse<Users>>) {
+    try {
+      console.log(req.body);
+      const email = req.body.email as string;
+      const user = await this.userServices.updateByEmail(email, { isVerified: true });
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: user ?? {},
+      });
+    } catch (e: any) {
+      ProcessError(e, res);
+    }
+  }
+
   async sendEmail(req: Request, res: Response<IResponse<IMailerResponse>>) {
     try {
       const email = req.query.email as string;
-      const name = req.query.email as string;
+      const name = req.query.name as string;
       const emailService = new MailerService();
       const info: SMTPTransport.SentMessageInfo = await emailService.sendEmail(email, name);
-      console.log(info.accepted);
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Email was successfully sent',
@@ -122,8 +152,6 @@ export class UserController {
       ProcessError(e, res);
     }
   }
-
-
 
   // async delete(req: Request, res: Response) {
   //   try {

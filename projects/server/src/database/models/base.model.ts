@@ -12,9 +12,9 @@ interface SearchCondition {
 
 export interface BaseModelAttributes {
   id: number;
-  createdAt?: Date;
-  updatedAt?: Date;
-  deletedAt?: Date;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  deletedAt: Date | null;
 }
 
 class BaseModel<
@@ -24,7 +24,7 @@ class BaseModel<
   public id!: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-  public readonly deletedAt!: Date;
+  public readonly deletedAt!: Date | null;
 
   static async paginate(
     page: number,
@@ -63,7 +63,7 @@ class BaseModel<
     };
   }
 
-  static async updateById(id: number, data: any): Promise<any> {
+  static async updateById<T>(id: number, data: Partial<T>): Promise<T> {
     await this.update(data, {
       where: {
         id,
@@ -74,17 +74,17 @@ class BaseModel<
         id,
       },
     });
-    return updatedData;
+    return updatedData as T;
   }
 
-  static async bulkUpdate(data: any, where: any): Promise<any> {
+  static async bulkUpdate<T>(data: any, where: Partial<T>): Promise<T[]> {
     await this.update(data, {
       where,
     });
     const updatedData = await this.findAll({
       where,
     });
-    return updatedData;
+    return updatedData as T[];
   }
 
   static async softDeleteById(id: number): Promise<any> {
@@ -170,5 +170,6 @@ export const baseModelConfig = {
   timestamps: true,
   paranoid: true,
   underscored: true,
+  sync: { force: false },
 };
 export default BaseModel;
