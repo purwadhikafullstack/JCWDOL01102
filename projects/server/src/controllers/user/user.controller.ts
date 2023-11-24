@@ -5,20 +5,19 @@ import { ProcessError } from '../../helper/Error/errorHandler';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
 import Users, { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
 import { Request, Response } from 'express';
-import { ICheckEmail, IResponse, IUserBodyReq } from '../interface';
+import { ICheckEmail, IMailerResponse, IResponse, IUserBodyReq } from '../interface';
 import { messages } from '../../config/message';
 import generateReferral from '../../helper/function/generatReferral';
 import bcrypt from 'bcrypt';
 import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
-import DocumentService from '../../service/documents/documents.service';
+import MailerService from '../../service/nodemailer.service';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
 
 export class UserController {
   private userServices: UserService;
-  private documentServices: DocumentService;
 
   constructor() {
     this.userServices = new UserService();
-    this.documentServices = new DocumentService();
   }
 
   async read(req: Request, res: Response<IResponse<UserAttributes>>) {
@@ -40,21 +39,19 @@ export class UserController {
   async create(req: Request, res: Response<IResponse<UserAttributes>>) {
     try {
       // await validate(postUserValidator, req.body);
-      console.log(req.body);
       const attr: IUserBodyReq = req.body;
       const hashedPass = await bcrypt.hash(attr.password, 10);
       attr.password = hashedPass;
-      const referralCode = generateReferral(10);
-
-      let document = await this.documentServices.createDocument({
-        bucketName: process.env.MINIO_BUCKET ?? '',
-        fileName: '',
-        pathName: '',
-        uniqueId: '',
-        isDeleted: false,
-      });
-      document = document.toJSON();
-      console.log(document.id);
+      let referralCode = '';
+      let userRefferal = {};
+      while (userRefferal) {
+        try {
+          referralCode = generateReferral(6);
+          userRefferal = await this.userServices.findOne({ referralCode: referralCode });
+        } catch (e) {
+          break;
+        }
+      }
 
       const newUserAttr: UserCreationAttributes = {
         ...attr,
@@ -64,18 +61,19 @@ export class UserController {
         birthdate: null,
         resetPasswordToken: null,
         verifyToken: null,
-        image_id: document.id,
+        createdAt: null,
+        updatedAt: null,
+        deletedAt: null,
       };
-      console.log(newUserAttr);
-      // res.json({ statusCode: 200, message: 'good' });
+
       const user = await this.userServices.create(newUserAttr);
+
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'User has been created succesfully',
         data: user ?? {},
       });
     } catch (err) {
-      console.log(err);
       ProcessError(err, res);
     }
   }
@@ -83,9 +81,7 @@ export class UserController {
   async findUserByEmail(req: Request, res: Response<IResponse<ICheckEmail>>) {
     try {
       const email = req.query.email;
-      console.log(email);
-      const user = await this.userServices.findOne({ email: email as string });
-      console.log(user.toJSON());
+      await this.userServices.findOne({ email: email as string });
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Email is already in use',
@@ -118,6 +114,27 @@ export class UserController {
       });
     } catch (err) {
       ProcessError(err, res);
+    }
+  }
+
+  async sendEmail(req: Request, res: Response<IResponse<IMailerResponse>>) {
+    try {
+      const email = req.query.email as string;
+      const name = req.query.name as string;
+      const id = parseInt(req.query.id as string);
+      const emailService = new MailerService();
+      const info: SMTPTransport.SentMessageInfo = await emailService.sendEmail(id, email, name);
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Email was successfully sent',
+        data: {
+          to: email,
+          message: info.response,
+          status: 'sent',
+        },
+      });
+    } catch (e: any) {
+      ProcessError(e, res);
     }
   }
 

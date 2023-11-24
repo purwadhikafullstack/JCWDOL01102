@@ -25,3 +25,11 @@ export interface IUserBodyReq {
 export interface ICheckEmail {
   available: boolean;
 }
+
+export interface IMailerResponse {
+  from?: string;
+  message: string;
+  to: string;
+  subject?: string;
+  status: string;
+}

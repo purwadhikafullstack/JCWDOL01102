@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vefify User</title>
+  </head>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&family=Outfit:wght@400;700;900&family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;0,800;0,900;1,600&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+    rel="stylesheet"
+  />
+  <body style="font-size: 18px; font-family: 'Roboto', sans-serif, sans-serif, 'Times New Roman', Times, serif">
+    <div style="width: 700px; margin: auto">
+      <h2 style="font-weight: 900; margin-bottom: 2rem">Hi, {{name}}</h2>
+      <p>Thank you for choosing ReFresh as your prefered grocery e-commerce.</p>
+      <p>To verify your account, please click the button below</p>
+      <a href="{{redirectLink}}">
+        <button
+          type="submit"
+          style="
+            margin-top: 1rem;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            border-radius: 18px;
+            width: 100%;
+            background-color: #53b175;
+            border: none;
+            padding-top: 0.8rem;
+            padding-bottom: 0.8rem;
+            cursor: pointer;
+          "
+        >
+          Verify
+        </button>
+      </a>
+    </div>
+  </body>
+</html>
