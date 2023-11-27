@@ -12,8 +12,7 @@ import bcrypt from 'bcrypt';
 import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
 import MailerService from '../../service/nodemailer.service';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import jwt from 'jsonwebtoken';
-import configConstants from '../../config/constants';
+import JWTService from '../../service/jwt/jwt.service';
 
 export class UserController {
   private userServices: UserService;
@@ -140,6 +139,21 @@ export class UserController {
     }
   }
 
+  async verify(req: Request, res: Response<IResponse<any>>) {
+    try {
+      const id = req.body.id;
+      const result = await this.userServices.updateById(Number(id), { isVerified: true });
+
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: result ?? {},
+      });
+    } catch (err) {
+      ProcessError(err, res);
+    }
+  }
+
   async Login(req: Request, res: Response<IResponse<ILoginResponse>>) {
     try {
       const email = req.body.email;
@@ -154,7 +168,8 @@ export class UserController {
         });
       }
 
-      const token = jwt.sign({ id: user.id, name: user.name, email: user.email }, configConstants.JWT_PRIVATE_KEY);
+      const jwtServie = new JWTService();
+      const token = await jwtServie.generateToken({ id: user.id, name: user.name, email: user.email });
 
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
@@ -176,16 +191,16 @@ export class UserController {
     }
   }
 
-  // async delete(req: Request, res: Response) {
-  //   try {
-  //     const id = Number(req.params.id);
-  //     if (!id) throw new BadRequestException('Invalid id', {});
-  //     const affectedRows = await this.userServices.deleteById(id);
-  //     res.status(HttpStatusCode.Ok).json({
-  //       affectedRows: affectedRows || 0,
-  //     });
-  //   } catch (err) {
-  //     ProcessError(err, res);
-  //   }
-  // }
+  async delete(req: Request, res: Response) {
+    try {
+      const id = Number(req.params.id);
+      if (!id) throw new BadRequestException('Invalid id', {});
+      const affectedRows = await this.userServices.deleteById(id);
+      res.status(HttpStatusCode.Ok).json({
+        affectedRows: affectedRows || 0,
+      });
+    } catch (err) {
+      ProcessError(err, res);
+    }
+  }
 }

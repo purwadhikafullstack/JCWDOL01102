@@ -32,6 +32,7 @@ export const createSendEmailValidation = () =>
 export const createUserEmailValidation = () => validate([query('email').notEmpty().isEmail().isString()]);
 
 export const createLoginValidator = () => validate([body('email').notEmpty().isEmail(), body('password').notEmpty()]);
+export const createVerifyValidator = () => validate([body('id').isInt().notEmpty()]);
 
 export const userExistValidation =
   () => async (req: Request, res: Response<IResponse<UserAttributes>>, next: NextFunction) => {

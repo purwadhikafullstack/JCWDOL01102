@@ -49,7 +49,7 @@ export default class UserService {
   async deleteById(id: number) {
     // eslint-disable-next-line no-useless-catch
     try {
-      const user = await Users.destroy({ where: { id } });
+      const user = await Users.softDeleteById(id);
       if (!user) throw new NotFoundException('Users not found', {});
       return user;
     } catch (error: any) {

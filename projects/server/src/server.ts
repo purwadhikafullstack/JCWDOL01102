@@ -12,6 +12,7 @@ import { messages } from './config/message';
 import UserRouter from './routes/user/user.route';
 import { AddressRouter } from './routes/address/address.route';
 import { MasterDataRouter } from './routes/master_data/master_data.route';
+import AuthMiddleware from './middleware/auth.middleware';
 
 const Reset = '\x1b[0m';
 // const FgRed = '\x1b[31m';
@@ -50,9 +51,11 @@ export default class Server {
     const userRouter = new UserRouter().router;
     const addressRouter = new AddressRouter().router;
     const masterDataRouter = new MasterDataRouter().router;
+    const authMiddleware = new AuthMiddleware();
 
     // Add to server routes the mainRouter, the api routes should be added before the 404 route
     // The first api name should be "/api" , e.g. /api/users
+    this.expressInstance.use(authMiddleware.checkAuth);
     this.expressInstance.use('/', router);
     this.expressInstance.use('/api/config', configRouter);
     this.expressInstance.use('/api/users', userRouter);

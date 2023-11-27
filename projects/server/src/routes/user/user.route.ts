@@ -5,6 +5,7 @@ import {
   createSendEmailValidation,
   createUserEmailValidation,
   createUserValidation,
+  createVerifyValidator,
   userExistValidation,
 } from '../../helper/validator/user/user.validator';
 
@@ -32,6 +33,9 @@ export default class userRouter {
     this.router
       .route('/login')
       .post(createLoginValidator(), (req: Request, res: Response) => this.userController.Login(req, res));
+    this.router
+      .route('/verify')
+      .patch(createVerifyValidator(), (req: Request, res: Response) => this.userController.verify(req, res));
     this.router.route('/:id').get((req: Request, res: Response) => this.userController.read(req, res));
     this.router.route('/:id').put((req: Request, res: Response) => this.userController.updateById(req, res));
   }
