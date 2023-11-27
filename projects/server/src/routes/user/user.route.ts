@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { UserController } from '../../controllers/user/user.controller';
 import {
+  createLoginValidator,
   createSendEmailValidation,
   createUserEmailValidation,
   createUserValidation,
@@ -28,6 +29,9 @@ export default class userRouter {
     this.router
       .route('/email')
       .get(createSendEmailValidation(), (req: Request, res: Response) => this.userController.sendEmail(req, res));
+    this.router
+      .route('/login')
+      .post(createLoginValidator(), (req: Request, res: Response) => this.userController.Login(req, res));
     this.router.route('/:id').get((req: Request, res: Response) => this.userController.read(req, res));
     this.router.route('/:id').put((req: Request, res: Response) => this.userController.updateById(req, res));
   }

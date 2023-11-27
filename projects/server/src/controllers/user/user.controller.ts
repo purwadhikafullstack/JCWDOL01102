@@ -5,13 +5,15 @@ import { ProcessError } from '../../helper/Error/errorHandler';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
 import Users, { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
 import { Request, Response } from 'express';
-import { ICheckEmail, IMailerResponse, IResponse, IUserBodyReq } from '../interface';
+import { ICheckEmail, ILoginResponse, IMailerResponse, IResponse, IUserBodyReq } from '../interface';
 import { messages } from '../../config/message';
 import generateReferral from '../../helper/function/generatReferral';
 import bcrypt from 'bcrypt';
 import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
 import MailerService from '../../service/nodemailer.service';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import jwt from 'jsonwebtoken';
+import configConstants from '../../config/constants';
 
 export class UserController {
   private userServices: UserService;
@@ -134,6 +136,42 @@ export class UserController {
         },
       });
     } catch (e: any) {
+      ProcessError(e, res);
+    }
+  }
+
+  async Login(req: Request, res: Response<IResponse<ILoginResponse>>) {
+    try {
+      const email = req.body.email;
+      const pass = req.body.password;
+      const user = await this.userServices.findOne({ email: email });
+      const matches = await bcrypt.compare(pass, user.password);
+
+      if (!matches) {
+        return res.status(HttpStatusCode.Unauthorized).send({
+          statusCode: HttpStatusCode.Unauthorized,
+          message: 'Email or Password is incorrect',
+        });
+      }
+
+      const token = jwt.sign({ id: user.id, name: user.name, email: user.email }, configConstants.JWT_PRIVATE_KEY);
+
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Login successfull',
+        data: {
+          email: user.email,
+          token: token,
+        },
+      });
+    } catch (e) {
+      console.log(e);
+      if (e instanceof NotFoundException) {
+        return res.status(HttpStatusCode.Unauthorized).send({
+          statusCode: HttpStatusCode.Unauthorized,
+          message: 'Email or Password is incorrect',
+        });
+      }
       ProcessError(e, res);
     }
   }

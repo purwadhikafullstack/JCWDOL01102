@@ -24,5 +24,6 @@ const configConstants = {
   SMTP_PASSWORD: process.env.SMTP_PASSWORD ?? '',
   FE_HOST: process.env.FE_HOST ?? '',
   FE_PORT: parseInt(process.env.FE_PORT ?? '5173', 10) ?? 5173,
+  JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY ?? '',
 };
 export default configConstants;
