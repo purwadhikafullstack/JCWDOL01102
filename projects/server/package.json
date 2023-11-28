@@ -61,7 +61,7 @@
     "express-list-endpoints": "^6.0.0",
     "express-validator": "^7.0.1",
     "fastest-validator": "^1.17.0",
-    "firebase-admin": "^11.10.1",
+    "file-type": "^16.5.3",
     "generate-unique-id": "^2.0.3",
     "handlebars": "^4.7.8",
     "helmet": "^7.0.0",
