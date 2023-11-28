@@ -1,37 +1,30 @@
 import { DataTypes, Optional } from 'sequelize';
 
-import BaseModel, { BaseModelAttributes, baseModelConfig } from './base.model';
+import BaseModel, { BaseModelAttributes, baseModelConfig, baseModelInit } from './base.model';
 
 export interface DocumentAttributes extends BaseModelAttributes {
   bucketName?: string;
   fileName?: string;
   pathName?: string;
   uniqueId?: string;
-  isDeleted: boolean;
+  isDeleted?: boolean;
 }
 
 export interface DocumentCreationAttributes extends Optional<DocumentAttributes, 'id'> {}
 export interface DocumentInstance extends Required<DocumentAttributes> {}
 
 class Documents extends BaseModel<DocumentAttributes, DocumentCreationAttributes> implements DocumentAttributes {
-  public id!: number;
   public bucketName!: string;
   public fileName!: string;
   public pathName!: string;
   public uniqueId!: string;
   public isDeleted!: boolean;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
-  public readonly deletedAt!: Date;
 }
 
 Documents.init(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
+    ...baseModelInit,
+
     bucketName: {
       type: new DataTypes.STRING(255),
       allowNull: true,
@@ -56,21 +49,6 @@ Documents.init(
       type: new DataTypes.STRING(255),
       allowNull: true,
       field: 'is_deleted',
-    },
-    createdAt: {
-      type: DataTypes.DATE(),
-      allowNull: true,
-      field: 'created_at',
-    },
-    updatedAt: {
-      type: DataTypes.DATE(),
-      allowNull: true,
-      field: 'updated_at',
-    },
-    deletedAt: {
-      type: DataTypes.DATE(),
-      allowNull: true,
-      field: 'created_at',
     },
   },
   {
