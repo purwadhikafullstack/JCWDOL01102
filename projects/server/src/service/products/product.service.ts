@@ -5,7 +5,7 @@ import Product from '../../database/models/products.model';
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
 import DocumentService from '../documents/documents.service';
 import { IRequestProduct } from './interface/interfaces';
-
+import * as fs from 'fs';
 export default class ProductService {
   documentService: DocumentService;
 
@@ -15,7 +15,10 @@ export default class ProductService {
 
   async createProduct(file: Express.Multer.File, input: IRequestProduct) {
     try {
-      console.log(input);
+      if (!file)
+        throw new UnprocessableEntityException('Image is required', {
+          image: 'Image is required',
+        });
       const branch = await Branch.findOne({ where: { id: input.branchId } });
       if (!branch)
         throw new UnprocessableEntityException('Branch not found', {
@@ -35,8 +38,10 @@ export default class ProductService {
         ...input,
         imageId: document.id,
       });
+      fs.unlinkSync(file.path);
       return product;
     } catch (error) {
+      fs.unlinkSync(file.path);
       throw error;
     }
   }
