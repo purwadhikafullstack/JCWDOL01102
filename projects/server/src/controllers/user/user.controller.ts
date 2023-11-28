@@ -173,7 +173,7 @@ export class UserController {
         role: userJson.role!.role,
         permission: perm,
       };
-      console.log(respObj);
+
       const jwtServie = new JWTService();
       const token = await jwtServie.generateToken(respObj);
 
