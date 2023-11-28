@@ -13,6 +13,7 @@ import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException
 import MailerService from '../../service/nodemailer.service';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import JWTService from '../../service/jwt/jwt.service';
+import { v4 as uuidV4 } from 'uuid';
 
 export class UserController {
   private userServices: UserService;
@@ -20,7 +21,6 @@ export class UserController {
   constructor() {
     this.userServices = new UserService();
   }
-
   async read(req: Request, res: Response<IResponse<UserAttributes>>) {
     try {
       const id = Number(req.params.id);
@@ -36,19 +36,21 @@ export class UserController {
       ProcessError(err, res);
     }
   }
-
   async create(req: Request, res: Response<IResponse<UserAttributes>>) {
     try {
-      // await validate(postUserValidator, req.body);
       const attr: IUserBodyReq = req.body;
       const hashedPass = await bcrypt.hash(attr.password, 10);
       attr.password = hashedPass;
       let referralCode = '';
+      let verifyToken = '';
       let userRefferal = {};
-      while (userRefferal) {
+      let userVerifyToken = {};
+      while (userRefferal && userVerifyToken) {
         try {
           referralCode = generateReferral(6);
+          verifyToken = uuidV4();
           userRefferal = await this.userServices.findOne({ referralCode: referralCode });
+          userVerifyToken = await this.userServices.findOne({ verifyToken: verifyToken });
         } catch (e) {
           break;
         }
@@ -61,7 +63,7 @@ export class UserController {
         isVerified: false,
         birthdate: null,
         resetPasswordToken: null,
-        verifyToken: null,
+        verifyToken,
         createdAt: null,
         updatedAt: null,
         deletedAt: null,
@@ -78,7 +80,6 @@ export class UserController {
       ProcessError(err, res);
     }
   }
-
   async findUserByEmail(req: Request, res: Response<IResponse<ICheckEmail>>) {
     try {
       const email = req.query.email;
@@ -103,7 +104,6 @@ export class UserController {
       ProcessError(err, res);
     }
   }
-
   async updateById(req: Request, res: Response<IResponse<Users>>) {
     try {
       const result = await this.userServices.updateById(Number(req.params.id), req.body);
@@ -117,14 +117,13 @@ export class UserController {
       ProcessError(err, res);
     }
   }
-
   async sendEmail(req: Request, res: Response<IResponse<IMailerResponse>>) {
     try {
       const email = req.query.email as string;
       const name = req.query.name as string;
-      const id = parseInt(req.query.id as string);
+      const verifyToken = req.query.verifyToken as string;
       const emailService = new MailerService();
-      const info: SMTPTransport.SentMessageInfo = await emailService.sendEmail(id, email, name);
+      const info: SMTPTransport.SentMessageInfo = await emailService.sendEmail(verifyToken, email, name);
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Email was successfully sent',
@@ -138,11 +137,10 @@ export class UserController {
       ProcessError(e, res);
     }
   }
-
   async verify(req: Request, res: Response<IResponse<any>>) {
     try {
-      const id = req.body.id;
-      const result = await this.userServices.updateById(Number(id), { isVerified: true });
+      const verifyToken = req.body.verifyToken;
+      const result = await this.userServices.updateByVerifyToken(verifyToken, { isVerified: true });
 
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
@@ -153,23 +151,31 @@ export class UserController {
       ProcessError(err, res);
     }
   }
-
   async Login(req: Request, res: Response<IResponse<ILoginResponse>>) {
     try {
       const email = req.body.email;
       const pass = req.body.password;
-      const user = await this.userServices.findOne({ email: email });
+      const user = await this.userServices.getUserDetalInfo({ email: email });
+      const userJson = user.toJSON();
       const matches = await bcrypt.compare(pass, user.password);
-
       if (!matches) {
         return res.status(HttpStatusCode.Unauthorized).send({
           statusCode: HttpStatusCode.Unauthorized,
           message: 'Email or Password is incorrect',
         });
       }
-
+      const perm = userJson.role?.permission?.map((data) => data.permission);
+      const respObj = {
+        name: userJson.name,
+        email: userJson.email,
+        phoneNumber: userJson.phoneNumber,
+        referralCode: userJson.referralCode,
+        role: userJson.role!.role,
+        permission: perm,
+      };
+      console.log(respObj);
       const jwtServie = new JWTService();
-      const token = await jwtServie.generateToken({ id: user.id, name: user.name, email: user.email });
+      const token = await jwtServie.generateToken(respObj);
 
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
@@ -190,7 +196,6 @@ export class UserController {
       ProcessError(e, res);
     }
   }
-
   async delete(req: Request, res: Response) {
     try {
       const id = Number(req.params.id);
