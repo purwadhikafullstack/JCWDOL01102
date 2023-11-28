@@ -89,7 +89,7 @@ export default class MinioService {
       // Wait for the Promise to resolve synchronously
       const objectData = await onDataProcessed;
       const fileType = await FileType.fromBuffer(objectData);
-      console.log(`Downloaded ${objectData.length} bytes from ${bucketName}/${pathName}`);
+      console.info(`Downloaded ${objectData.length} bytes from ${bucketName}/${pathName}`);
 
       return {
         objectData,
