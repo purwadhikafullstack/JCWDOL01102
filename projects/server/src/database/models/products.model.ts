@@ -2,37 +2,37 @@ import { DataTypes, Optional } from 'sequelize';
 import BaseModel, { BaseModelAttributes, baseModelConfig, baseModelInit } from './base.model';
 
 export interface ProductAttributes extends BaseModelAttributes {
-  category_id: number;
-  image_id: number;
+  categoryId: number;
+  imageId: number;
   name: string;
   price: number;
   stock: number;
-  branch_id: number;
+  branchId: number;
   weight: number;
   desc: string;
 }
 
 export interface ProductCreationAttributes extends Optional<ProductAttributes, 'id'> {}
 
-class Products extends BaseModel<ProductAttributes, ProductCreationAttributes> implements ProductAttributes {
-  public category_id!: number;
-  public image_id!: number;
+class Product extends BaseModel<ProductAttributes, ProductCreationAttributes> implements ProductAttributes {
+  public categoryId!: number;
+  public imageId!: number;
   public name!: string;
   public price!: number;
   public stock!: number;
-  public branch_id!: number;
+  public branchId!: number;
   public weight!: number;
   public desc!: string;
 }
 
-Products.init(
+Product.init(
   {
     ...baseModelInit,
-    category_id: {
+    categoryId: {
       type: DataTypes.INTEGER(),
       allowNull: false,
     },
-    image_id: {
+    imageId: {
       type: DataTypes.INTEGER(),
       allowNull: false,
     },
@@ -48,7 +48,7 @@ Products.init(
       type: DataTypes.INTEGER(),
       allowNull: false,
     },
-    branch_id: {
+    branchId: {
       type: DataTypes.INTEGER(),
       allowNull: false,
     },
@@ -67,4 +67,4 @@ Products.init(
   }
 );
 
-export default Products;
+export default Product;

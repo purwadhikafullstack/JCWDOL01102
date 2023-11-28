@@ -13,6 +13,7 @@ import UserRouter from './routes/user/user.route';
 import { AddressRouter } from './routes/address/address.route';
 import { MasterDataRouter } from './routes/master_data/master_data.route';
 import DocuementRouter from './routes/document/document.route';
+import { ProductRouter } from './routes/product/product.route';
 
 const Reset = '\x1b[0m';
 // const FgRed = '\x1b[31m';
@@ -52,6 +53,7 @@ export default class Server {
     const addressRouter = new AddressRouter().router;
     const masterDataRouter = new MasterDataRouter().router;
     const documentRouter = new DocuementRouter().router;
+    const productRouter = new ProductRouter().router;
 
     // Add to server routes the mainRouter, the api routes should be added before the 404 route
     // The first api name should be "/api" , e.g. /api/users
@@ -61,6 +63,7 @@ export default class Server {
     this.expressInstance.use('/api/address', addressRouter);
     this.expressInstance.use('/api/master-data', masterDataRouter);
     this.expressInstance.use('/api/document', documentRouter);
+    this.expressInstance.use('/api/product', productRouter);
 
     // Register 404 route , this should be the last route
     // @ts-ignore

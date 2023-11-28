@@ -11,7 +11,7 @@ export default class DocumentService {
     this.minioService = new MinioService();
   }
 
-  async createDocument(input: DocumentCreationAttributes): Promise<any> {
+  async createDocument(input: DocumentCreationAttributes): Promise<Documents> {
     try {
       const user = await Documents.create(input);
       return user;
@@ -78,7 +78,7 @@ export default class DocumentService {
     ]);
   }
 
-  async uploadDocument(file: Express.Multer.File, type: string) {
+  async uploadDocument(file: Express.Multer.File, type: string): Promise<Documents> {
     // eslint-disable-next-line no-useless-catch
     try {
       const fileName = `${uuidv4()}-${file.originalname}`;

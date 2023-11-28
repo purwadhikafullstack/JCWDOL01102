@@ -8,7 +8,6 @@ import { NotFoundException } from '../helper/Error/NotFound/NotFoundException';
 export default class UserMiddleware {
   static async userExistValidation(req: Request, res: Response<IResponse<UserAttributes>>, next: NextFunction) {
     try {
-      // console.log("")
       const userService = new UserService();
       const body: IUserBodyReq = req.body.email;
       const user = await userService.findOne({ email: body.email });
