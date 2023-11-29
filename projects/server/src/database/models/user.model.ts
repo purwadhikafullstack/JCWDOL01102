@@ -1,5 +1,6 @@
 import { DataTypes, Optional } from 'sequelize';
 import BaseModel, { BaseModelAttributes, baseModelConfig, baseModelInit } from './base.model';
+import Roles from './role.model';
 
 // User Interface
 export interface UserAttributes extends BaseModelAttributes {
@@ -17,6 +18,7 @@ export interface UserAttributes extends BaseModelAttributes {
   resetPasswordToken?: string | null;
   verifyToken?: string | null;
   password: string;
+  role?: { role: string; permission: { permission: string }[] };
 }
 
 export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -110,5 +112,8 @@ Users.init(
     tableName: 'users',
   }
 );
+
+Users.belongsTo(Roles, { foreignKey: 'role_id', as: 'role' });
+Roles.hasMany(Users, { sourceKey: 'id', foreignKey: 'role_id', as: 'user' });
 
 export default Users;

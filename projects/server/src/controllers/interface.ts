@@ -26,6 +26,11 @@ export interface ICheckEmail {
   available: boolean;
 }
 
+export interface ILoginResponse {
+  email: string;
+  token: string;
+}
+
 export interface IMailerResponse {
   from?: string;
   message: string;

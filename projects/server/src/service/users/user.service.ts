@@ -4,6 +4,8 @@ import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException
 import { removeLimitAndPage } from '../../helper/function/filteredData';
 import { IPaginate } from '../../helper/interface/paginate/paginate.interface';
 import Users, { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
+import Roles from '../../database/models/role.model';
+import Permissions from '../../database/models/permission.model';
 
 export default class UserService {
   async create(input: UserCreationAttributes) {
@@ -24,6 +26,29 @@ export default class UserService {
     }
   }
 
+  async getUserDetalInfo(conditions: Partial<UserCreationAttributes>) {
+    try {
+      const user = await Users.findOne({
+        where: conditions,
+        include: {
+          model: Roles,
+          as: 'role',
+          attributes: ['role'],
+          include: [
+            {
+              model: Permissions,
+              as: 'permission',
+              attributes: ['permission'],
+            },
+          ],
+        },
+      });
+      if (!user) throw new NotFoundException('Users not found', {});
+      return user;
+    } catch (error: any) {
+      throw new Error(`Error getting users: ${error.message}`);
+    }
+  }
   async findOne(conditions: Partial<UserCreationAttributes>) {
     // eslint-disable-next-line no-useless-catch
     try {
@@ -49,7 +74,7 @@ export default class UserService {
   async deleteById(id: number) {
     // eslint-disable-next-line no-useless-catch
     try {
-      const user = await Users.destroy({ where: { id } });
+      const user = await Users.softDeleteById(id);
       if (!user) throw new NotFoundException('Users not found', {});
       return user;
     } catch (error: any) {
@@ -63,6 +88,18 @@ export default class UserService {
       const user = await Users.updateById<UserAttributes>(id, input);
       if (!user) throw new NotFoundException('Users not found', {});
       const result = await this.getById(id);
+      return result;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
+  async updateByVerifyToken(verifyToken: string, input: Partial<UserAttributes>): Promise<Users> {
+    // eslint-disable-next-line no-useless-catch
+    try {
+      const user = await Users.update(input, { where: { verifyToken } });
+      if (!user) throw new NotFoundException('Users not found', {});
+      const result = await this.findOne({ verifyToken });
       return result;
     } catch (error: any) {
       throw error;

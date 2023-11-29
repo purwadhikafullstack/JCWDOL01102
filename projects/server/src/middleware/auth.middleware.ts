@@ -1,26 +1,57 @@
 import { NextFunction, Request, Response } from 'express';
-import { ValidationChain, validationResult } from 'express-validator';
+import { UnauthorizedException } from '../helper/Error/UnauthorizedException/UnauthorizedException';
+import JWTService from '../service/jwt/jwt.service';
+import { IUser } from '../helper/interface/user/user.interface';
 import { ProcessError } from '../helper/Error/errorHandler';
-import { BadRequestException } from '../helper/Error/BadRequestException/BadRequestException';
 
-export class AuthMiddleware {
-  static InputValidator(validations: ValidationChain[]) {
-    return async (req: Request, res: Response, next: NextFunction) => {
-      for (const validation of validations) {
-        const result = await validation.run(req);
-        if (result.context.errors.length) {
-          break;
+interface ISpecifiedRoute {
+  route: RegExp;
+  method: string;
+}
+export default class AuthMiddleware {
+  public async checkAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const bypasAuth = ['/api/users/email', '/api/users/login', '/api/users/verify'];
+      for (const whitelist of bypasAuth) {
+        if (req.path.startsWith(whitelist)) {
+          return next();
         }
       }
+      const specifiedRoutes: ISpecifiedRoute[] = [
+        {
+          method: 'GET',
+          route: /^\/api\/users\/\d+$/,
+        },
+        {
+          method: 'POST',
+          route: /^\/api\/users/,
+        },
+        {
+          method: 'GET',
+          route: /^\/api\/users/,
+        },
+      ];
 
-      const errors = validationResult(req);
-      if (errors.isEmpty()) {
+      const isSpecifiedRoute = specifiedRoutes.some(
+        (route) =>
+          route.method.toUpperCase() === req.method.toUpperCase() &&
+          route.method === req.method &&
+          route.route.test(req.path)
+      );
+
+      if (isSpecifiedRoute) {
         return next();
       }
 
-      ProcessError(new BadRequestException(''), res);
-      res.json();
-    };
-  }
+      if (!req.headers.authorization) throw new UnauthorizedException('Unauthorized', {});
+      const jwtService = new JWTService();
 
+      const token = req.headers.authorization.split(' ')[1];
+      const decoded = await jwtService.verifyToken(token);
+      req.user = decoded as IUser;
+      next();
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }
