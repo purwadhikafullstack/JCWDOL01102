@@ -9,7 +9,7 @@ export default class JWTService {
 
   async verifyToken(token: string) {
     try {
-      return jwt.verify(token, configConstants.JWT_SECRET_ACCESS_TOKEN);
+      return jwt.verify(token, configConstants.JWT_PRIVATE_KEY);
     } catch (error) {
       console.log('JwtService:verifyToken:error');
       throw new ForbiddenException('Invalid token', {});
