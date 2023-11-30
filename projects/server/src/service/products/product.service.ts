@@ -1,11 +1,12 @@
 /* eslint-disable no-useless-catch */
+import { Op } from 'sequelize';
 import Branch from '../../database/models/branch.model';
 import Category from '../../database/models/category.model';
 import Product from '../../database/models/products.model';
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
 import DocumentService from '../documents/documents.service';
 import { IRequestProduct } from './interface/interfaces';
-import * as fs from 'fs';
+import configConstants from '../../config/constants';
 export default class ProductService {
   documentService: DocumentService;
 
@@ -38,10 +39,104 @@ export default class ProductService {
         ...input,
         imageId: document.id,
       });
-      fs.unlinkSync(file.path);
       return product;
     } catch (error) {
-      fs.unlinkSync(file.path);
+      throw error;
+    }
+  }
+
+  async page(page: number, limit: number, branchId: number, data: any) {
+    try {
+      console.log(data);
+      const products = await Product.paginate(page, limit, [
+        {
+          keySearch: 'name',
+          keyValue: data.name,
+          operator: Op.substring,
+          keyColumn: 'name',
+        },
+        {
+          keySearch: 'categoryId',
+          keyValue: data.categoryId,
+          operator: data.categoryId ? Op.eq : Op.ne,
+          keyColumn: 'categoryId',
+        },
+        {
+          keySearch: 'branchId',
+          keyValue: branchId.toString(),
+          operator: Op.eq,
+          keyColumn: 'branchId',
+        },
+      ]);
+
+      return {
+        ...products,
+        data: await Promise.all(
+          products.data.map(async (product) => {
+            return await this.buildResponsePayload(product.toJSON());
+          })
+        ),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async buildResponsePayload(product: Product) {
+    const document = await this.documentService.getDocument(product.imageId);
+    return {
+      ...product,
+      imageUrl: `${configConstants.API_URL}/api/document/${document?.uniqueId}`,
+    };
+  }
+
+  async updateById(id: number, branchId: number, input: Partial<IRequestProduct>) {
+    try {
+      const product = await Product.findOne({ where: { id, branchId } });
+      if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
+      await product.update(input);
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deleteById(id: number, branchId: number) {
+    try {
+      const product = await Product.findOne({ where: { id, branchId } });
+      if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
+      await product.destroy();
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getById(id: number, branchId: number) {
+    try {
+      const product = await Product.findOne({ where: { id, branchId } });
+      if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
+      return await this.buildResponsePayload(product.toJSON());
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateWithImage(file: Express.Multer.File, id: number, branchId: number, input: Partial<IRequestProduct>) {
+    try {
+      const product = await Product.findOne({ where: { id, branchId } });
+      if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
+      const document = await this.documentService.uploadDocument(file, 'product');
+      if (!document.id)
+        throw new UnprocessableEntityException('Error uploading document', {
+          document: 'Error uploading document',
+        });
+      await product.update({
+        ...input,
+        imageId: document.id,
+      });
+      return product;
+    } catch (error) {
       throw error;
     }
   }

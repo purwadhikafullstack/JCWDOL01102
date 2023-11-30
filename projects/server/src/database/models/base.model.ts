@@ -1,5 +1,6 @@
 import { Model, DataTypes, Optional } from 'sequelize';
 import Database from '../../config/db';
+import { Op } from 'sequelize';
 
 const databaseInstance = Database.database;
 
@@ -32,7 +33,8 @@ class BaseModel<
     searchConditions: SearchCondition[] = []
   ): Promise<{
     data: any[];
-    totalItems: number;
+    totalCount: number;
+    pageSize: number;
     totalPages: number;
     currentPage: number;
   }> {
@@ -44,20 +46,24 @@ class BaseModel<
     for (const condition of searchConditions) {
       //   if (condition.operator === Op.gte || condition.operator === Op.lte) {
       whereConditions[condition.keyColumn ?? condition.keySearch] = {
-        [condition.operator]: condition.keyValue,
+        [condition.keyValue ? condition.operator : Op.substring]: condition.keyValue,
         // };
       };
     }
+    whereConditions['deletedAt'] = {
+      [Op.eq]: null,
+    };
 
     const results = await this.findAndCountAll({
       where: whereConditions,
-      offset,
       limit,
+      offset,
     });
 
     return {
       data: results.rows,
-      totalItems: results.count,
+      totalCount: results.count,
+      pageSize: limit,
       totalPages: Math.ceil(results.count / limit),
       currentPage: page,
     };
