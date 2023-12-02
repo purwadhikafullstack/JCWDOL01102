@@ -25,5 +25,6 @@ const configConstants = {
   FE_HOST: process.env.FE_HOST ?? '',
   FE_PORT: parseInt(process.env.FE_PORT ?? '5173', 10) ?? 5173,
   JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY ?? '',
+  API_URL: `${process.env.BE_HOST ?? 'http://localhost'}:${process.env.PORT ?? '8000'}`,
 };
 export default configConstants;

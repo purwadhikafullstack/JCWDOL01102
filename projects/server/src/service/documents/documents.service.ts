@@ -20,7 +20,7 @@ export default class DocumentService {
     }
   }
 
-  async getDocument(id: number): Promise<any> {
+  async getDocument(id: number): Promise<Documents | null> {
     try {
       const users = await Documents.findOne({ where: { id: id } });
       return users;
