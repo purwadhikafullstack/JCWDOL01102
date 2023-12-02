@@ -1,4 +1,4 @@
-import { Op } from 'sequelize';
+import { Op, WhereOptions } from 'sequelize';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
 import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
 import { removeLimitAndPage } from '../../helper/function/filteredData';
@@ -17,7 +17,7 @@ export default class UserService {
     }
   }
 
-  async gets(conditions: Partial<UserCreationAttributes>) {
+  async gets(conditions: Partial<UserCreationAttributes> | WhereOptions<UserAttributes>) {
     try {
       const users = await Users.findAll({ where: conditions });
       return users;

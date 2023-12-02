@@ -3,6 +3,7 @@ import { UserController } from '../../controllers/user/user.controller';
 import {
   createLoginValidator,
   createSendEmailValidation,
+  createUserByRoleValidator,
   createUserEmailValidation,
   createUserValidation,
   createVerifyValidator,
@@ -26,6 +27,9 @@ export default class userRouter {
       )
       .get(createUserEmailValidation(), (req: Request, res: Response) => {
         this.userController.findUserByEmail(req, res);
+      })
+      .get(createUserByRoleValidator(), (req: Request, res: Response) => {
+        this.userController.findUserByRoleId(req, res);
       });
     this.router
       .route('/email')

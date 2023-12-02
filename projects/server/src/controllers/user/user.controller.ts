@@ -14,6 +14,7 @@ import MailerService from '../../service/nodemailer.service';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import JWTService from '../../service/jwt/jwt.service';
 import { v4 as uuidV4 } from 'uuid';
+import { Op } from 'sequelize';
 
 export class UserController {
   private userServices: UserService;
@@ -99,6 +100,26 @@ export class UserController {
           data: {
             available: true,
           },
+        });
+      }
+      ProcessError(err, res);
+    }
+  }
+
+  async findUserByRoleId(req: Request, res: Response<IResponse<UserAttributes>>) {
+    try {
+      const role_id = req.query.role_id;
+      console.log(role_id);
+      // const user = await this.userServices.gets({[Op.and] : [{role_id : role_id?.[0]}]})
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'heu',
+      });
+    } catch (err: any) {
+      if (err instanceof NotFoundException) {
+        return res.status(HttpStatusCode.Ok).send({
+          statusCode: HttpStatusCode.Ok,
+          message: 'Email is available',
         });
       }
       ProcessError(err, res);
