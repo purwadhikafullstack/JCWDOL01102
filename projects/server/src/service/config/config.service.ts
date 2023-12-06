@@ -81,29 +81,33 @@ export default class ConfigServie {
   }
 
   async paginate(): Promise<any> {
-    return await Configs.paginate(1, 10, [
-      {
-        keySearch: 'module',
-        keyValue: '123',
-        operator: Op.substring,
-      },
-      {
-        keySearch: 'name',
-        keyValue: '123',
-        operator: Op.substring,
-      },
-      {
-        keySearch: 'startDate',
-        keyValue: '123',
-        operator: Op.gte,
-        keyColumn: 'createdAt',
-      },
-      {
-        keySearch: 'endDate',
-        keyValue: '123',
-        operator: Op.lte,
-        keyColumn: 'createdAt',
-      },
-    ]);
+    return await Configs.paginate({
+      limit: 10,
+      page: 1,
+      searchConditions: [
+        {
+          keySearch: 'module',
+          keyValue: '123',
+          operator: Op.substring,
+        },
+        {
+          keySearch: 'name',
+          keyValue: '123',
+          operator: Op.substring,
+        },
+        {
+          keySearch: 'startDate',
+          keyValue: '123',
+          operator: Op.gte,
+          keyColumn: 'createdAt',
+        },
+        {
+          keySearch: 'endDate',
+          keyValue: '123',
+          operator: Op.lte,
+          keyColumn: 'createdAt',
+        },
+      ],
+    });
   }
 }

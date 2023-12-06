@@ -126,10 +126,10 @@ export default class UserService {
 
   async page(page: number, limit: number, roleId: number) {
     try {
-      const users = await Users.paginate(
+      const users = await Users.paginate({
         page,
         limit,
-        [
+        searchConditions: [
           {
             keySearch: 'role_id',
             keyValue: roleId.toString(),
@@ -137,7 +137,7 @@ export default class UserService {
             keyColumn: 'role_id',
           },
         ],
-        [
+        includeConditions: [
           {
             model: Roles,
             as: 'role',
@@ -149,8 +149,8 @@ export default class UserService {
             attributes: ['name'],
           },
         ],
-        ['id', 'name', 'branch_id', 'email']
-      );
+        attributes: ['id', 'name', 'branch_id', 'email'],
+      });
       return users;
     } catch (error: any) {
       throw new BadRequestException(`Error paginating users: ${error.message}`);

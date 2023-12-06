@@ -227,6 +227,7 @@ export class UserController {
         name: userJson.name,
         email: userJson.email,
         branchId: userJson.branch_id,
+        userId: userJson.id,
         phoneNumber: userJson.phoneNumber,
         referralCode: userJson.referralCode,
         role: userJson.role!.role,

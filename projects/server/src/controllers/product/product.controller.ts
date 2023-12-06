@@ -1,10 +1,11 @@
-import { Request, Response } from 'express';
-import ProductService from '../../service/products/product.service';
-import { ProcessError } from '../../helper/Error/errorHandler';
 import { HttpStatusCode } from 'axios';
-import { IResponse } from '../interface';
-import Product from '../../database/models/products.model';
+import { Request, Response } from 'express';
 import { messages } from '../../config/message';
+import { sortOptions } from '../../database/models/base.model';
+import Product from '../../database/models/products.model';
+import { ProcessError } from '../../helper/Error/errorHandler';
+import ProductService from '../../service/products/product.service';
+import { IResponse } from '../interface';
 
 export default class ProductController {
   productService: ProductService;
@@ -30,7 +31,17 @@ export default class ProductController {
   async page(req: Request, res: Response<IResponse<any>>) {
     try {
       const { page, limit } = req.query;
-      const products = await this.productService.page(Number(page), Number(limit), Number('1'), req.query);
+      const sortOption: sortOptions = {
+        key: req.query.sortBy as string,
+        order: req.query.order as string,
+      };
+      const products = await this.productService.page(
+        Number(page),
+        Number(limit),
+        req.user.branchId,
+        req.query,
+        sortOption
+      );
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -44,7 +55,7 @@ export default class ProductController {
   async updateProduct(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
-      const product = await this.productService.updateById(Number(id), 1, req.body);
+      const product = await this.productService.updateById(Number(id), req.user.branchId, req.body);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -57,7 +68,7 @@ export default class ProductController {
   async deleteProduct(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
-      const product = await this.productService.deleteById(Number(id), 1);
+      const product = await this.productService.deleteById(Number(id), req.user.branchId);
       res.status(HttpStatusCode.NoContent).json({
         statusCode: HttpStatusCode.NoContent,
         message: messages.SUCCESS,
@@ -71,7 +82,7 @@ export default class ProductController {
   async getProductById(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
-      const product = await this.productService.getById(Number(id), 1);
+      const product = await this.productService.getById(Number(id), req.user.branchId);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -86,7 +97,7 @@ export default class ProductController {
     try {
       const { id } = req.params;
       const file = req.file as Express.Multer.File;
-      const product = await this.productService.updateWithImage(file, Number(id), 1, req.body);
+      const product = await this.productService.updateWithImage(file, Number(id), req.user.branchId, req.body);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,

@@ -1,6 +1,5 @@
-import { Model, DataTypes, Optional, Includeable, Attributes, FindAttributeOptions } from 'sequelize';
+import { DataTypes, FindAttributeOptions, Includeable, Model, Op, Optional } from 'sequelize';
 import Database from '../../config/db';
-import { Op } from 'sequelize';
 
 const databaseInstance = Database.database;
 
@@ -17,6 +16,19 @@ export interface BaseModelAttributes {
   updatedAt?: Date | null;
   deletedAt?: Date | null;
 }
+export interface sortOptions {
+  key?: string;
+  order?: string;
+}
+
+interface IPaginate {
+  page: number;
+  limit: number;
+  searchConditions: SearchCondition[];
+  sortOptions?: sortOptions;
+  includeConditions?: Includeable[];
+  attributes?: FindAttributeOptions;
+}
 
 class BaseModel<
   TAttributes extends BaseModelAttributes,
@@ -27,25 +39,19 @@ class BaseModel<
   public readonly updatedAt!: Date;
   public readonly deletedAt!: Date | null;
 
-  static async paginate(
-    page: number,
-    limit: number,
-    searchConditions: SearchCondition[] = [],
-    includeConditions?: Includeable[],
-    attributes?: FindAttributeOptions
-  ): Promise<{
+  static async paginate(input: IPaginate): Promise<{
     data: any[];
     totalCount: number;
     pageSize: number;
     totalPages: number;
     currentPage: number;
   }> {
-    const offset = (page - 1) * limit;
+    const offset = (input.page - 1) * input.limit;
 
     const whereConditions: { [key: string]: any } = {};
 
     // Apply custom search conditions
-    for (const condition of searchConditions) {
+    for (const condition of input.searchConditions) {
       //   if (condition.operator === Op.gte || condition.operator === Op.lte) {
       whereConditions[condition.keyColumn ?? condition.keySearch] = {
         [condition.keyValue ? condition.operator : Op.substring]: condition.keyValue,
@@ -56,20 +62,25 @@ class BaseModel<
       [Op.eq]: null,
     };
 
+    // Apply sorting
+    const sortKey = input.sortOptions?.key ?? 'id';
+    const sortOrder = input.sortOptions?.order ?? 'ASC';
+
     const results = await this.findAndCountAll({
       where: whereConditions,
-      limit,
+      order: [[sortKey, sortOrder]],
+      limit: input.limit,
       offset,
-      include: includeConditions,
-      attributes: attributes,
+      include: input.includeConditions,
+      attributes: input.attributes,
     });
 
     return {
       data: results.rows,
       totalCount: results.count,
-      pageSize: limit,
-      totalPages: Math.ceil(results.count / limit),
-      currentPage: page,
+      pageSize: input.limit,
+      totalPages: Math.ceil(results.count / input.limit),
+      currentPage: input.page,
     };
   }
 
