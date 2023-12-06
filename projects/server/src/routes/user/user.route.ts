@@ -1,10 +1,9 @@
-import { Request, Response, Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import { UserController } from '../../controllers/user/user.controller';
 import {
   createLoginValidator,
   createSendEmailValidation,
-  createUserByRoleValidator,
-  createUserEmailValidation,
+  createUserGetValidation,
   createUserValidation,
   createVerifyValidator,
   userExistValidation,
@@ -21,16 +20,23 @@ export default class userRouter {
 
   serve() {
     this.router
-      .route('/')
+      .route('')
       .post(createUserValidation(), userExistValidation(), (req: Request, res: Response) =>
         this.userController.create(req, res)
       )
-      .get(createUserEmailValidation(), (req: Request, res: Response) => {
-        this.userController.findUserByEmail(req, res);
-      })
-      .get(createUserByRoleValidator(), (req: Request, res: Response) => {
-        this.userController.findUserByRoleId(req, res);
-      });
+      .get(
+        createUserGetValidation(),
+        (req: Request, res: Response, next: NextFunction) => {
+          this.userController.findUserByEmail(req, res, next);
+        },
+        (req: Request, res: Response, next: NextFunction) => {
+          this.userController.findUserByRoleId(req, res, next);
+        },
+        (req: Request, res: Response) => {
+          this.userController.page(req, res);
+        }
+      );
+
     this.router
       .route('/email')
       .get(createSendEmailValidation(), (req: Request, res: Response) => this.userController.sendEmail(req, res));

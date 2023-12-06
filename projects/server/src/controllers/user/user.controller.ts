@@ -4,7 +4,7 @@ import { HttpStatusCode } from 'axios';
 import { ProcessError } from '../../helper/Error/errorHandler';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
 import Users, { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { ICheckEmail, ILoginResponse, IMailerResponse, IResponse, IUserBodyReq } from '../interface';
 import { messages } from '../../config/message';
 import generateReferral from '../../helper/function/generatReferral';
@@ -37,6 +37,7 @@ export class UserController {
       ProcessError(err, res);
     }
   }
+
   async create(req: Request, res: Response<IResponse<UserAttributes>>) {
     try {
       const attr: IUserBodyReq = req.body;
@@ -46,25 +47,29 @@ export class UserController {
       let verifyToken = '';
       let userRefferal = {};
       let userVerifyToken = {};
-      while (userRefferal && userVerifyToken) {
-        try {
-          referralCode = generateReferral(6);
-          verifyToken = uuidV4();
-          userRefferal = await this.userServices.findOne({ referralCode: referralCode });
-          userVerifyToken = await this.userServices.findOne({ verifyToken: verifyToken });
-        } catch (e) {
-          break;
+
+      if (!attr.branch_id) {
+        while (userRefferal && userVerifyToken) {
+          try {
+            referralCode = generateReferral(6);
+            verifyToken = uuidV4();
+            userRefferal = await this.userServices.findOne({ referralCode: referralCode });
+            userVerifyToken = await this.userServices.findOne({ verifyToken: verifyToken });
+          } catch (e) {
+            break;
+          }
         }
       }
 
       const newUserAttr: UserCreationAttributes = {
         ...attr,
-        referralCode,
+        referralCode: !attr.branch_id ? referralCode : '',
+        address: '',
         isDeleted: false,
-        isVerified: false,
+        isVerified: !attr.branch_id ? false : true,
         birthdate: null,
         resetPasswordToken: null,
-        verifyToken,
+        verifyToken: !attr.branch_id ? verifyToken : '',
         createdAt: null,
         updatedAt: null,
         deletedAt: null,
@@ -74,16 +79,18 @@ export class UserController {
 
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
-        message: 'User has been created succesfully',
+        message: !attr.branch_id ? 'User has been created succesfully' : 'Admin has been created succesfully',
         data: user ?? {},
       });
     } catch (err) {
       ProcessError(err, res);
     }
   }
-  async findUserByEmail(req: Request, res: Response<IResponse<ICheckEmail>>) {
+
+  async findUserByEmail(req: Request, res: Response<IResponse<ICheckEmail>>, next: NextFunction) {
     try {
       const email = req.query.email;
+      if (!email) return next();
       await this.userServices.findOne({ email: email as string });
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
@@ -106,22 +113,52 @@ export class UserController {
     }
   }
 
-  async findUserByRoleId(req: Request, res: Response<IResponse<UserAttributes>>) {
+  async page(req: Request, res: Response<IResponse<any>>) {
     try {
-      const role_id = req.query.role_id;
-      console.log(role_id);
-      // const user = await this.userServices.gets({[Op.and] : [{role_id : role_id?.[0]}]})
-      res.status(HttpStatusCode.Ok).send({
-        statusCode: HttpStatusCode.Ok,
-        message: 'heu',
-      });
-    } catch (err: any) {
-      if (err instanceof NotFoundException) {
-        return res.status(HttpStatusCode.Ok).send({
-          statusCode: HttpStatusCode.Ok,
-          message: 'Email is available',
+      if (!req.query.page || !req.query.limit) {
+        return res.status(HttpStatusCode.BadRequest).send({
+          statusCode: HttpStatusCode.BadRequest,
+          message: 'bad request',
         });
       }
+      const page = Number(req.query.page);
+      const limit = Number(req.query.limit);
+      const users = await this.userServices.page(page, limit, 2);
+      // console.log(users);
+      if (users.data.length === 0) {
+        return res.status(HttpStatusCode.NotFound).send({
+          statusCode: HttpStatusCode.NotFound,
+          message: 'Pagination failed',
+        });
+      }
+
+      return res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Pagination success',
+        data: users,
+      });
+    } catch (e) {
+      ProcessError(e, res);
+    }
+  }
+  async findUserByRoleId(req: Request, res: Response<IResponse<UserAttributes>>, next: NextFunction) {
+    try {
+      if (!req.query.role_id) return next();
+      const roleId: string[] = (req.query.role_id as string[]) || [];
+      const roleIdNum = roleId.map((val) => Number(val));
+
+      const users = await this.userServices.gets({
+        role_id: {
+          [Op.in]: roleIdNum,
+        },
+      });
+
+      return res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: users,
+      });
+    } catch (err: any) {
       ProcessError(err, res);
     }
   }
@@ -189,12 +226,15 @@ export class UserController {
       const respObj = {
         name: userJson.name,
         email: userJson.email,
+        branchId: userJson.branch_id,
         phoneNumber: userJson.phoneNumber,
         referralCode: userJson.referralCode,
         role: userJson.role!.role,
         permission: perm,
+        branch: userJson.branch,
       };
 
+      console.log(respObj);
       const jwtServie = new JWTService();
       const token = await jwtServie.generateToken(respObj);
 

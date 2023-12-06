@@ -30,4 +30,14 @@ export default class UserMiddleware {
       }
     }
   }
+
+  static isCreateAdmin() {
+    return (req: Request, res: Response, next: NextFunction) => {
+      if (!req.body.branch_id) {
+        return next();
+      }
+
+      res.redirect('/api/users/admin');
+    };
+  }
 }

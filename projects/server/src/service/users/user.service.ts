@@ -1,11 +1,10 @@
 import { Op, WhereOptions } from 'sequelize';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
 import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
-import { removeLimitAndPage } from '../../helper/function/filteredData';
-import { IPaginate } from '../../helper/interface/paginate/paginate.interface';
 import Users, { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
 import Roles from '../../database/models/role.model';
 import Permissions from '../../database/models/permission.model';
+import Branch from '../../database/models/branch.model';
 
 export default class UserService {
   async create(input: UserCreationAttributes) {
@@ -30,18 +29,25 @@ export default class UserService {
     try {
       const user = await Users.findOne({
         where: conditions,
-        include: {
-          model: Roles,
-          as: 'role',
-          attributes: ['role'],
-          include: [
-            {
-              model: Permissions,
-              as: 'permission',
-              attributes: ['permission'],
-            },
-          ],
-        },
+        include: [
+          {
+            model: Roles,
+            as: 'role',
+            attributes: ['role'],
+            include: [
+              {
+                model: Permissions,
+                as: 'permission',
+                attributes: ['permission'],
+              },
+            ],
+          },
+          {
+            model: Branch,
+            as: 'branch',
+            attributes: ['name'],
+          },
+        ],
       });
       if (!user) throw new NotFoundException('Users not found', {});
       return user;
@@ -118,22 +124,33 @@ export default class UserService {
     }
   }
 
-  async page(input: IPaginate<UserCreationAttributes>) {
+  async page(page: number, limit: number, roleId: number) {
     try {
-      const page = input.page ?? 1;
-      const limit = input.limit ?? 10;
-      const offset = Math.max(page - 1, 0) * limit;
-      const conditions = removeLimitAndPage(input.data);
-      const users = await Users.findAndCountAll({
-        where: {
-          name: {
-            [Op.like]: `%${conditions.name}%`,
-          },
-        },
+      const users = await Users.paginate(
+        page,
         limit,
-        offset: offset,
-        order: [['id', 'DESC']],
-      });
+        [
+          {
+            keySearch: 'role_id',
+            keyValue: roleId.toString(),
+            operator: Op.lte,
+            keyColumn: 'role_id',
+          },
+        ],
+        [
+          {
+            model: Roles,
+            as: 'role',
+            attributes: ['role'],
+          },
+          {
+            model: Branch,
+            as: 'branch',
+            attributes: ['name'],
+          },
+        ],
+        ['id', 'name', 'branch_id', 'email']
+      );
       return users;
     } catch (error: any) {
       throw new BadRequestException(`Error paginating users: ${error.message}`);

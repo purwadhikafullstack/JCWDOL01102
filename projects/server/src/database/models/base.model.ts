@@ -1,4 +1,4 @@
-import { Model, DataTypes, Optional } from 'sequelize';
+import { Model, DataTypes, Optional, Includeable, Attributes, FindAttributeOptions } from 'sequelize';
 import Database from '../../config/db';
 import { Op } from 'sequelize';
 
@@ -30,7 +30,9 @@ class BaseModel<
   static async paginate(
     page: number,
     limit: number,
-    searchConditions: SearchCondition[] = []
+    searchConditions: SearchCondition[] = [],
+    includeConditions?: Includeable[],
+    attributes?: FindAttributeOptions
   ): Promise<{
     data: any[];
     totalCount: number;
@@ -58,6 +60,8 @@ class BaseModel<
       where: whereConditions,
       limit,
       offset,
+      include: includeConditions,
+      attributes: attributes,
     });
 
     return {
