@@ -7,6 +7,7 @@ import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEn
 import DocumentService from '../documents/documents.service';
 import { IRequestProduct } from './interface/interfaces';
 import configConstants from '../../config/constants';
+import { sortOptions } from '../../database/models/base.model';
 export default class ProductService {
   documentService: DocumentService;
 
@@ -45,29 +46,33 @@ export default class ProductService {
     }
   }
 
-  async page(page: number, limit: number, branchId: number, data: any) {
+  async page(page: number, limit: number, branchId: number, data: any, sortOptions?: sortOptions) {
     try {
-      console.log(data);
-      const products = await Product.paginate(page, limit, [
-        {
-          keySearch: 'name',
-          keyValue: data.name,
-          operator: Op.substring,
-          keyColumn: 'name',
-        },
-        {
-          keySearch: 'categoryId',
-          keyValue: data.categoryId,
-          operator: data.categoryId ? Op.eq : Op.ne,
-          keyColumn: 'categoryId',
-        },
-        {
-          keySearch: 'branchId',
-          keyValue: branchId.toString(),
-          operator: Op.eq,
-          keyColumn: 'branchId',
-        },
-      ]);
+      const products = await Product.paginate({
+        page,
+        limit,
+        searchConditions: [
+          {
+            keySearch: 'name',
+            keyValue: data.name,
+            operator: Op.substring,
+            keyColumn: 'name',
+          },
+          {
+            keySearch: 'categoryId',
+            keyValue: data.categoryId,
+            operator: data.categoryId ? Op.eq : Op.ne,
+            keyColumn: 'categoryId',
+          },
+          {
+            keySearch: 'branchId',
+            keyValue: branchId.toString(),
+            operator: Op.eq,
+            keyColumn: 'branchId',
+          },
+        ],
+        sortOptions,
+      });
 
       return {
         ...products,
@@ -84,9 +89,11 @@ export default class ProductService {
 
   async buildResponsePayload(product: Product) {
     const document = await this.documentService.getDocument(product.imageId);
+    const category = await Category.findOne({ where: { id: product.categoryId } });
     return {
       ...product,
       imageUrl: `${configConstants.API_URL}/api/document/${document?.uniqueId}`,
+      category: category,
     };
   }
 

@@ -1,5 +1,7 @@
+import { IUser } from '../helper/interface/user/user.interface';
+
 declare namespace Express {
   interface Request {
-    user: any; // Replace 'any' with the actual type of your 'user' property
+    user: IUser; // Replace 'any' with the actual type of your 'user' property
   }
 }

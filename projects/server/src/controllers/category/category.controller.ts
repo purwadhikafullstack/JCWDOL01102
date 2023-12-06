@@ -15,7 +15,7 @@ export class CategoryController {
 
   async createCategory(req: Request, res: Response<IResponse<Category>>) {
     try {
-      const category = await this.categoryService.createCategory(1, req.body);
+      const category = await this.categoryService.createCategory(req.user.branchId, req.body);
       res.status(HttpStatusCode.Created).json({
         statusCode: HttpStatusCode.Created,
         message: messages.CREATED,
@@ -29,7 +29,7 @@ export class CategoryController {
   async updateCategory(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
-      const category = await this.categoryService.updateById(Number(id), 1, req.body);
+      const category = await this.categoryService.updateById(Number(id), req.user.branchId, req.body);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -43,7 +43,7 @@ export class CategoryController {
   async deleteCategory(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
-      const category = await this.categoryService.deleteById(Number(id), 1);
+      const category = await this.categoryService.deleteById(Number(id), req.user.branchId);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -70,7 +70,12 @@ export class CategoryController {
   async page(req: Request, res: Response<IResponse<any>>) {
     try {
       const { page, limit } = req.query;
-      const categories = await this.categoryService.page(Number(page), Number(limit), Number('1'), req.query);
+      const categories = await this.categoryService.page(
+        Number(page ?? 1),
+        Number(limit ?? 10),
+        req.user.branchId,
+        req.query
+      );
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -84,7 +89,7 @@ export class CategoryController {
   async getCategoryById(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
-      const category = await this.categoryService.findById(Number(id), 1);
+      const category = await this.categoryService.findById(Number(id), req.user.branchId);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
