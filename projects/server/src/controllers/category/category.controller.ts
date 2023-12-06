@@ -70,7 +70,12 @@ export class CategoryController {
   async page(req: Request, res: Response<IResponse<any>>) {
     try {
       const { page, limit } = req.query;
-      const categories = await this.categoryService.page(Number(page), Number(limit), Number('1'), req.query);
+      const categories = await this.categoryService.page(
+        Number(page ?? 1),
+        Number(limit ?? 10),
+        Number('1'),
+        req.query
+      );
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,

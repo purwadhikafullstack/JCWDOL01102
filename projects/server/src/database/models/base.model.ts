@@ -17,6 +17,10 @@ export interface BaseModelAttributes {
   updatedAt?: Date | null;
   deletedAt?: Date | null;
 }
+export interface sortOptions {
+  key?: string;
+  order?: string;
+}
 
 class BaseModel<
   TAttributes extends BaseModelAttributes,
@@ -30,7 +34,11 @@ class BaseModel<
   static async paginate(
     page: number,
     limit: number,
-    searchConditions: SearchCondition[] = []
+    searchConditions: SearchCondition[] = [],
+    sortOptions: sortOptions = {
+      key: 'id',
+      order: 'ASC',
+    }
   ): Promise<{
     data: any[];
     totalCount: number;
@@ -54,8 +62,13 @@ class BaseModel<
       [Op.eq]: null,
     };
 
+    // Apply sorting
+    const sortKey = sortOptions?.key ?? 'id';
+    const sortOrder = sortOptions?.order ?? 'ASC';
+
     const results = await this.findAndCountAll({
       where: whereConditions,
+      order: [[sortKey, sortOrder]],
       limit,
       offset,
     });

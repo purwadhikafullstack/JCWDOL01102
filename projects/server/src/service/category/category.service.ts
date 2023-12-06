@@ -1,9 +1,21 @@
 import { Op } from 'sequelize';
 import Category, { CategoryAttributes } from '../../database/models/category.model';
+import Product from '../../database/models/products.model';
+import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
 
 export class CategoryService {
   async createCategory(branchId: number, data: CategoryAttributes): Promise<Category> {
     try {
+      const isExist = await Category.findOne({
+        where: {
+          name: data.name,
+          branchId,
+        },
+      });
+      if (isExist)
+        throw new UnprocessableEntityException('Category already exist', {
+          name: data.name,
+        });
       const category = await Category.create({
         ...data,
         branchId,
@@ -91,7 +103,26 @@ export class CategoryService {
         },
       ]);
 
-      return categories;
+      return {
+        ...categories,
+        data: await Promise.all(categories.data.map((category) => this.buildResponse(category))),
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async buildResponse(category: Category): Promise<any> {
+    try {
+      const product = await Product.count({
+        where: {
+          categoryId: category.id,
+        },
+      });
+      return {
+        ...category.toJSON(),
+        totalProduct: product,
+      };
     } catch (error) {
       throw error;
     }

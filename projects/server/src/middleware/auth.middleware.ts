@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { UnauthorizedException } from '../helper/Error/UnauthorizedException/UnauthorizedException';
-import JWTService from '../service/jwt/jwt.service';
-import { IUser } from '../helper/interface/user/user.interface';
 import { ProcessError } from '../helper/Error/errorHandler';
+import { IUser } from '../helper/interface/user/user.interface';
+import JWTService from '../service/jwt/jwt.service';
 
 interface ISpecifiedRoute {
   route: RegExp;
   method: string;
 }
+
 export default class AuthMiddleware {
   public async checkAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -29,6 +30,10 @@ export default class AuthMiddleware {
         {
           method: 'GET',
           route: /^\/api\/users/,
+        },
+        {
+          method: 'GET',
+          route: /^\/api\/document\/[a-f0-9-]+$/i,
         },
       ];
 
