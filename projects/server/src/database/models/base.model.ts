@@ -1,4 +1,4 @@
-import { Model, DataTypes, Optional } from 'sequelize';
+import { Model, DataTypes, Optional, Includeable, Attributes, FindAttributeOptions } from 'sequelize';
 import Database from '../../config/db';
 import { Op } from 'sequelize';
 
@@ -21,6 +21,23 @@ export interface sortOptions {
   key?: string;
   order?: string;
 }
+// page: number,
+//     limit: number,
+//     searchConditions: SearchCondition[] = [],
+//     sortOptions: sortOptions = {
+//       key: 'id',
+//       order: 'ASC',
+//     },
+//     includeConditions?: Includeable[],
+//     attributes?: FindAttributeOptions
+interface IPaginate {
+  page: number;
+  limit: number;
+  searchConditions: SearchCondition[];
+  sortOptions?: sortOptions;
+  includeConditions?: Includeable[];
+  attributes?: FindAttributeOptions;
+}
 
 class BaseModel<
   TAttributes extends BaseModelAttributes,
@@ -31,27 +48,19 @@ class BaseModel<
   public readonly updatedAt!: Date;
   public readonly deletedAt!: Date | null;
 
-  static async paginate(
-    page: number,
-    limit: number,
-    searchConditions: SearchCondition[] = [],
-    sortOptions: sortOptions = {
-      key: 'id',
-      order: 'ASC',
-    }
-  ): Promise<{
+  static async paginate(input: IPaginate): Promise<{
     data: any[];
     totalCount: number;
     pageSize: number;
     totalPages: number;
     currentPage: number;
   }> {
-    const offset = (page - 1) * limit;
+    const offset = (input.page - 1) * input.limit;
 
     const whereConditions: { [key: string]: any } = {};
 
     // Apply custom search conditions
-    for (const condition of searchConditions) {
+    for (const condition of input.searchConditions) {
       //   if (condition.operator === Op.gte || condition.operator === Op.lte) {
       whereConditions[condition.keyColumn ?? condition.keySearch] = {
         [condition.keyValue ? condition.operator : Op.substring]: condition.keyValue,
@@ -63,22 +72,24 @@ class BaseModel<
     };
 
     // Apply sorting
-    const sortKey = sortOptions?.key ?? 'id';
-    const sortOrder = sortOptions?.order ?? 'ASC';
+    const sortKey = input.sortOptions?.key ?? 'id';
+    const sortOrder = input.sortOptions?.order ?? 'ASC';
 
     const results = await this.findAndCountAll({
       where: whereConditions,
       order: [[sortKey, sortOrder]],
-      limit,
+      limit: input.limit,
       offset,
+      include: input.includeConditions,
+      attributes: input.attributes,
     });
 
     return {
       data: results.rows,
       totalCount: results.count,
-      pageSize: limit,
-      totalPages: Math.ceil(results.count / limit),
-      currentPage: page,
+      pageSize: input.limit,
+      totalPages: Math.ceil(results.count / input.limit),
+      currentPage: input.page,
     };
   }
 

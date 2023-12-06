@@ -20,6 +20,7 @@ export interface IUserBodyReq {
   address: string;
   role_id: number;
   image_id: number;
+  branch_id: number;
 }
 
 export interface ICheckEmail {

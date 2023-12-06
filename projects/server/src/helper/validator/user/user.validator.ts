@@ -2,7 +2,7 @@
 // https://www.npmjs.com/package/fastest-validator
 
 import { body, query } from 'express-validator';
-import validate from '../../function/expressValidator';
+import validate, { validateUserGet } from '../../function/expressValidator';
 import UserService from '../../../service/users/user.service';
 import { IResponse, IUserBodyReq } from '../../../controllers/interface';
 import { NextFunction, Request, Response } from 'express';
@@ -20,6 +20,7 @@ export const createUserValidation = () =>
       .matches(/[A-Z0-9]/)
       .notEmpty()
       .isLength({ min: 8 }),
+    body('branch_id').optional().isInt(),
   ]);
 
 export const createSendEmailValidation = () =>
@@ -29,10 +30,16 @@ export const createSendEmailValidation = () =>
     query('verifyToken').notEmpty().isString(),
   ]);
 
-export const createUserEmailValidation = () => validate([query('email').notEmpty().isEmail().isString()]);
-
+export const createUserGetValidation = () =>
+  validateUserGet([
+    query('email').isEmail().isString().optional(),
+    query('role_id').isInt().optional(),
+    query('page').isInt().optional(),
+    query('limit').isInt().optional(),
+  ]);
 export const createLoginValidator = () => validate([body('email').notEmpty().isEmail(), body('password').notEmpty()]);
 export const createVerifyValidator = () => validate([body('verifyToken').isString().notEmpty()]);
+// export const createUserByRoleValidator = () => validateUserGet([query('role_id').optional().isInt()]);
 
 export const userExistValidation =
   () => async (req: Request, res: Response<IResponse<UserAttributes>>, next: NextFunction) => {

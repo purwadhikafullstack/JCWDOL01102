@@ -1,6 +1,7 @@
 import { DataTypes, Optional } from 'sequelize';
 import BaseModel, { BaseModelAttributes, baseModelConfig, baseModelInit } from './base.model';
 import Roles from './role.model';
+import Branch from './branch.model';
 
 // User Interface
 export interface UserAttributes extends BaseModelAttributes {
@@ -19,6 +20,7 @@ export interface UserAttributes extends BaseModelAttributes {
   verifyToken?: string | null;
   password: string;
   role?: { role: string; permission: { permission: string }[] };
+  branch?: { name: string };
 }
 
 export interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -49,6 +51,10 @@ Users.init(
   {
     ...baseModelInit,
     image_id: {
+      type: DataTypes.INTEGER(),
+      allowNull: true,
+    },
+    branch_id: {
       type: DataTypes.INTEGER(),
       allowNull: true,
     },
@@ -115,5 +121,8 @@ Users.init(
 
 Users.belongsTo(Roles, { foreignKey: 'role_id', as: 'role' });
 Roles.hasMany(Users, { sourceKey: 'id', foreignKey: 'role_id', as: 'user' });
+
+Users.belongsTo(Branch, { foreignKey: 'branch_id', as: 'branch' });
+Branch.hasMany(Users, { sourceKey: 'id', foreignKey: 'branch_id', as: 'user' });
 
 export default Users;
