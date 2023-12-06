@@ -35,7 +35,13 @@ export default class ProductController {
         key: req.query.sortBy as string,
         order: req.query.order as string,
       };
-      const products = await this.productService.page(Number(page), Number(limit), Number('1'), req.query, sortOption);
+      const products = await this.productService.page(
+        Number(page),
+        Number(limit),
+        req.user.branchId,
+        req.query,
+        sortOption
+      );
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -49,7 +55,7 @@ export default class ProductController {
   async updateProduct(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
-      const product = await this.productService.updateById(Number(id), 1, req.body);
+      const product = await this.productService.updateById(Number(id), req.user.branchId, req.body);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -62,7 +68,7 @@ export default class ProductController {
   async deleteProduct(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
-      const product = await this.productService.deleteById(Number(id), 1);
+      const product = await this.productService.deleteById(Number(id), req.user.branchId);
       res.status(HttpStatusCode.NoContent).json({
         statusCode: HttpStatusCode.NoContent,
         message: messages.SUCCESS,
@@ -76,7 +82,7 @@ export default class ProductController {
   async getProductById(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
-      const product = await this.productService.getById(Number(id), 1);
+      const product = await this.productService.getById(Number(id), req.user.branchId);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
@@ -91,7 +97,7 @@ export default class ProductController {
     try {
       const { id } = req.params;
       const file = req.file as Express.Multer.File;
-      const product = await this.productService.updateWithImage(file, Number(id), 1, req.body);
+      const product = await this.productService.updateWithImage(file, Number(id), req.user.branchId, req.body);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,

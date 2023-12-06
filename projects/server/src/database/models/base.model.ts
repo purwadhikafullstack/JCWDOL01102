@@ -1,6 +1,5 @@
-import { Model, DataTypes, Optional, Includeable, Attributes, FindAttributeOptions } from 'sequelize';
+import { DataTypes, FindAttributeOptions, Includeable, Model, Op, Optional } from 'sequelize';
 import Database from '../../config/db';
-import { Op } from 'sequelize';
 
 const databaseInstance = Database.database;
 
@@ -21,15 +20,7 @@ export interface sortOptions {
   key?: string;
   order?: string;
 }
-// page: number,
-//     limit: number,
-//     searchConditions: SearchCondition[] = [],
-//     sortOptions: sortOptions = {
-//       key: 'id',
-//       order: 'ASC',
-//     },
-//     includeConditions?: Includeable[],
-//     attributes?: FindAttributeOptions
+
 interface IPaginate {
   page: number;
   limit: number;
