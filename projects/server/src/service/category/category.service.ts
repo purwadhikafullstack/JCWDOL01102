@@ -88,20 +88,28 @@ export class CategoryService {
 
   async page(page: number, limit: number, branchId: number, data: any) {
     try {
-      const categories = await Category.paginate(page, limit, [
-        {
-          keySearch: 'name',
-          keyValue: data.name,
-          operator: Op.substring,
-          keyColumn: 'name',
+      const categories = await Category.paginate({
+        page,
+        limit,
+        searchConditions: [
+          {
+            keySearch: 'name',
+            keyValue: data.name,
+            operator: Op.substring,
+            keyColumn: 'name',
+          },
+          {
+            keySearch: 'branchId',
+            keyValue: branchId.toString(),
+            operator: Op.eq,
+            keyColumn: 'branchId',
+          },
+        ],
+        sortOptions: {
+          key: 'id',
+          order: 'ASC',
         },
-        {
-          keySearch: 'branchId',
-          keyValue: branchId.toString(),
-          operator: Op.eq,
-          keyColumn: 'branchId',
-        },
-      ]);
+      });
 
       return {
         ...categories,

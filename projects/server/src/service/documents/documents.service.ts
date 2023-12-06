@@ -52,30 +52,34 @@ export default class DocumentService {
   }
 
   async paginate(): Promise<any> {
-    return await Documents.paginate(1, 10, [
-      {
-        keySearch: 'module',
-        keyValue: '123',
-        operator: Op.substring,
-      },
-      {
-        keySearch: 'name',
-        keyValue: '123',
-        operator: Op.substring,
-      },
-      {
-        keySearch: 'startDate',
-        keyValue: '123',
-        operator: Op.gte,
-        keyColumn: 'createdAt',
-      },
-      {
-        keySearch: 'endDate',
-        keyValue: '123',
-        operator: Op.lte,
-        keyColumn: 'createdAt',
-      },
-    ]);
+    return await Documents.paginate({
+      limit: 10,
+      page: 1,
+      searchConditions: [
+        {
+          keySearch: 'module',
+          keyValue: '123',
+          operator: Op.substring,
+        },
+        {
+          keySearch: 'name',
+          keyValue: '123',
+          operator: Op.substring,
+        },
+        {
+          keySearch: 'startDate',
+          keyValue: '123',
+          operator: Op.gte,
+          keyColumn: 'createdAt',
+        },
+        {
+          keySearch: 'endDate',
+          keyValue: '123',
+          operator: Op.lte,
+          keyColumn: 'createdAt',
+        },
+      ],
+    });
   }
 
   async uploadDocument(file: Express.Multer.File, type: string): Promise<Documents> {

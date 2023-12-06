@@ -46,12 +46,12 @@ export default class ProductService {
     }
   }
 
-  async page(page: number, limit: number, branchId: number, data: any, sortOption?: sortOptions) {
+  async page(page: number, limit: number, branchId: number, data: any, sortOptions?: sortOptions) {
     try {
-      const products = await Product.paginate(
+      const products = await Product.paginate({
         page,
         limit,
-        [
+        searchConditions: [
           {
             keySearch: 'name',
             keyValue: data.name,
@@ -71,8 +71,8 @@ export default class ProductService {
             keyColumn: 'branchId',
           },
         ],
-        sortOption
-      );
+        sortOptions,
+      });
 
       return {
         ...products,
