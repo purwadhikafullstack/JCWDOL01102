@@ -19,18 +19,18 @@ export default class AuthMiddleware {
         }
       }
       const specifiedRoutes: ISpecifiedRoute[] = [
-        // {
-        //   method: 'GET',
-        //   route: /^\/api\/users\/\d+$/,
-        // },
-        // {
-        //   method: 'POST',
-        //   route: /^\/api\/users/,
-        // },
-        // {
-        //   method: 'GET',
-        //   route: /^\/api\/users/,
-        // },
+        {
+          method: 'GET',
+          route: /^\/api\/users(?:\?.*)?$/,
+        },
+        {
+          method: 'POST',
+          route: /^\/api\/users\/login/,
+        },
+        {
+          method: 'PATCH',
+          route: /^\/api\/users\/verify/,
+        },
         {
           method: 'GET',
           route: /^\/api\/document\/[a-f0-9-]+$/i,
