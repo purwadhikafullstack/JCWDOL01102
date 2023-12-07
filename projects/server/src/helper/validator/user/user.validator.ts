@@ -36,6 +36,9 @@ export const createUserGetValidation = () =>
     query('role_id').isInt().optional(),
     query('page').isInt().optional(),
     query('limit').isInt().optional(),
+    query('filterBy').isInt().optional(),
+    query('sortBy').isString().optional(),
+    query('key').isString().optional(),
   ]);
 export const createLoginValidator = () => validate([body('email').notEmpty().isEmail(), body('password').notEmpty()]);
 export const createVerifyValidator = () => validate([body('verifyToken').isString().notEmpty()]);
