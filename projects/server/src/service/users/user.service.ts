@@ -155,21 +155,34 @@ export default class UserService {
     }
   }
 
-  async page(page: number, limit: number, sortBy?: string, filterBy?: number, key?: string) {
+  async page(page: number, limit: number, roleId: number, sortBy?: string, filterBy?: number, key?: string) {
     try {
-      console.log(sortBy);
-      console.log(filterBy);
       const users = await Users.paginate({
         page,
         limit,
-        searchConditions: [
-          {
-            keySearch: 'name',
-            keyValue: key!,
-            operator: Op.like,
-            keyColumn: 'name',
-          },
-        ],
+        searchConditions: !key
+          ? [
+              {
+                keySearch: 'role_id',
+                keyValue: roleId.toString(),
+                operator: Op.lte,
+                keyColumn: 'role_id',
+              },
+              {
+                keySearch: 'name',
+                keyValue: key!,
+                operator: Op.like,
+                keyColumn: 'role_id',
+              },
+            ]
+          : [
+              {
+                keySearch: 'role_id',
+                keyValue: roleId.toString(),
+                operator: Op.lte,
+                keyColumn: 'role_id',
+              },
+            ],
         includeConditions: [
           {
             model: Roles,
