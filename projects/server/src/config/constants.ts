@@ -16,5 +16,15 @@ const configConstants = {
   MINIO_USE_SSL: process.env.MINIO_USE_SSL ?? 'false',
   MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY ?? 'minio',
   MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY ?? 'minio123',
+  SMTP_HOST: process.env.SMTP_HOST ?? 'smtp.gmail.com',
+  SMTP_SERVICE: process.env.SMTP_SERVICE ?? 'gmail',
+  SMTP_PORT: parseInt(process.env.SMTP_PORT ?? '465'),
+  SMTP_SECURE: process.env.SMTP_SECURE === 'true' ? true : false ?? true,
+  SMTP_USER: process.env.SMTP_USER ?? '',
+  SMTP_PASSWORD: process.env.SMTP_PASSWORD ?? '',
+  FE_HOST: process.env.FE_HOST ?? '',
+  FE_PORT: parseInt(process.env.FE_PORT ?? '5173', 10) ?? 5173,
+  JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY ?? '',
+  API_URL: `${process.env.BE_HOST ?? 'http://localhost'}:${process.env.PORT ?? '8000'}`,
 };
 export default configConstants;

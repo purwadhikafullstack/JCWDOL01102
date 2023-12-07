@@ -1,7 +1,6 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-const tablename = 'users';
 module.exports = {
   async up(queryInterface, Sequelize) {
     /**
@@ -10,38 +9,40 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-    await queryInterface.createTable(tablename, {
+    await queryInterface.createTable('role_has_permissions', {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         autoIncrement: true,
       },
-      name: {
-        type: Sequelize.STRING(255),
-        allowNull: true,
+      role_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
-      email: {
-        type: Sequelize.STRING(255),
-        allowNull: true,
+      permission_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
-      password: {
-        type: Sequelize.STRING(255),
-      },
-      uniqueId: {
-        type: Sequelize.STRING(255),
-        allowNull: true,
-      },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        allowNull: false,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+        allowNull: false,
+      },
+      deleted_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
       },
     });
   },
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async down(queryInterface, Sequelize) {
     /**
      * Add reverting commands here.
@@ -49,6 +50,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.dropTable(tablename);
+    await queryInterface.dropTable('role_has_permissions');
   },
 };
