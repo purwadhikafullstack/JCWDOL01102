@@ -29,6 +29,7 @@ export default class ProductController {
   }
 
   async page(req: Request, res: Response<IResponse<any>>) {
+    console.log(req.query);
     try {
       const { page, limit } = req.query;
       const sortOption: sortOptions = {
