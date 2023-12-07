@@ -14,7 +14,6 @@ export default class DocumentController {
   async createDocument(req: Request, res: Response<IResponse<DocumentAttributes>>) {
     try {
       const document = await this.documentService.createDocument(req.body);
-      console.log(document);
     } catch (e) {
       ProcessError(e, res);
     }
