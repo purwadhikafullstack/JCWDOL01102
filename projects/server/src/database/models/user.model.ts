@@ -76,7 +76,7 @@ Users.init(
     },
     phoneNumber: {
       type: new DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
       field: 'phone_number',
     },
     referralCode: {
