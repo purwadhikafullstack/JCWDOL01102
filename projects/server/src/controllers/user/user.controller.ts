@@ -12,7 +12,6 @@ import bcrypt from 'bcrypt';
 import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
 import MailerService from '../../service/nodemailer.service';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import JWTService from '../../service/jwt/jwt.service';
 import { v4 as uuidV4 } from 'uuid';
 import { Op } from 'sequelize';
 
@@ -123,14 +122,10 @@ export class UserController {
       }
       const page = Number(req.query.page);
       const limit = Number(req.query.limit);
-      const users = await this.userServices.page(page, limit, 2);
-      // console.log(users);
-      if (users.data.length === 0) {
-        return res.status(HttpStatusCode.NotFound).send({
-          statusCode: HttpStatusCode.NotFound,
-          message: 'Pagination failed',
-        });
-      }
+      const key = req.query.key ? String(req.query.key) : undefined;
+      const sortBy = req.query.sortBy ? String(req.query.sortBy) : undefined;
+      const filterBy = req.query.filterBy ? Number(req.query.filterBy) : undefined;
+      const users = await this.userServices.page(page, limit, 2, sortBy, filterBy, key);
 
       return res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
@@ -211,44 +206,22 @@ export class UserController {
   }
   async Login(req: Request, res: Response<IResponse<ILoginResponse>>) {
     try {
-      const email = req.body.email;
-      const pass = req.body.password;
-      const user = await this.userServices.getUserDetalInfo({ email: email });
-      const userJson = user.toJSON();
-      const matches = await bcrypt.compare(pass, user.password);
-      if (!matches) {
-        return res.status(HttpStatusCode.Unauthorized).send({
-          statusCode: HttpStatusCode.Unauthorized,
-          message: 'Email or Password is incorrect',
+      const token = await this.userServices.login(req.body);
+      if (!token) {
+        return res.status(HttpStatusCode.NotFound).send({
+          statusCode: HttpStatusCode.NotFound,
+          message: 'Username or Password is incorrect',
         });
       }
-      const perm = userJson.role?.permission?.map((data) => data.permission);
-      const respObj = {
-        name: userJson.name,
-        email: userJson.email,
-        branchId: userJson.branch_id,
-        userId: userJson.id,
-        phoneNumber: userJson.phoneNumber,
-        referralCode: userJson.referralCode,
-        role: userJson.role!.role,
-        permission: perm,
-        branch: userJson.branch,
-      };
-
-      console.log(respObj);
-      const jwtServie = new JWTService();
-      const token = await jwtServie.generateToken(respObj);
-
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Login successfull',
         data: {
-          email: user.email,
+          email: req.body.email,
           token: token,
         },
       });
     } catch (e) {
-      console.log(e);
       if (e instanceof NotFoundException) {
         return res.status(HttpStatusCode.Unauthorized).send({
           statusCode: HttpStatusCode.Unauthorized,

@@ -5,7 +5,8 @@ import Users, { UserAttributes, UserCreationAttributes } from '../../database/mo
 import Roles from '../../database/models/role.model';
 import Permissions from '../../database/models/permission.model';
 import Branch from '../../database/models/branch.model';
-
+import bcrypt from 'bcrypt';
+import JWTService from '../jwt/jwt.service';
 export default class UserService {
   async create(input: UserCreationAttributes) {
     try {
@@ -25,6 +26,36 @@ export default class UserService {
     }
   }
 
+  async login(input: Partial<UserCreationAttributes>) {
+    try {
+      const email = input.email;
+      const pass = input.password;
+      const user = await this.getUserDetalInfo({ email: email });
+      const userJson = user.toJSON();
+      const matches = await bcrypt.compare(pass!, user.password);
+      if (!matches) {
+        return '';
+      }
+      const perm = userJson.role?.permission?.map((data) => data.permission);
+      const respObj = {
+        name: userJson.name,
+        email: userJson.email,
+        branchId: userJson.branch_id,
+        userId: userJson.id,
+        phoneNumber: userJson.phoneNumber,
+        referralCode: userJson.referralCode,
+        role: userJson.role!.role,
+        permission: perm,
+        branch: userJson.branch,
+      };
+
+      const jwtServie = new JWTService();
+      const token = await jwtServie.generateToken(respObj);
+      return token;
+    } catch (e: any) {
+      throw new Error(`Login Error : ${e.message}`);
+    }
+  }
   async getUserDetalInfo(conditions: Partial<UserCreationAttributes>) {
     try {
       const user = await Users.findOne({
@@ -124,24 +155,40 @@ export default class UserService {
     }
   }
 
-  async page(page: number, limit: number, roleId: number) {
+  async page(page: number, limit: number, roleId: number, sortBy?: string, filterBy?: number, key?: string) {
     try {
       const users = await Users.paginate({
         page,
         limit,
-        searchConditions: [
-          {
-            keySearch: 'role_id',
-            keyValue: roleId.toString(),
-            operator: Op.lte,
-            keyColumn: 'role_id',
-          },
-        ],
+        searchConditions: !key
+          ? [
+              {
+                keySearch: 'role_id',
+                keyValue: roleId.toString(),
+                operator: Op.lte,
+                keyColumn: 'role_id',
+              },
+              {
+                keySearch: 'name',
+                keyValue: key!,
+                operator: Op.like,
+                keyColumn: 'role_id',
+              },
+            ]
+          : [
+              {
+                keySearch: 'role_id',
+                keyValue: roleId.toString(),
+                operator: Op.lte,
+                keyColumn: 'role_id',
+              },
+            ],
         includeConditions: [
           {
             model: Roles,
             as: 'role',
             attributes: ['role'],
+            where: filterBy ? { id: filterBy } : undefined,
           },
           {
             model: Branch,
@@ -149,6 +196,7 @@ export default class UserService {
             attributes: ['name'],
           },
         ],
+        sortOptions: sortBy ? { key: 'name', order: sortBy } : undefined,
         attributes: ['id', 'name', 'branch_id', 'email'],
       });
       return users;
