@@ -48,5 +48,6 @@ export default class userRouter {
       .patch(createVerifyValidator(), (req: Request, res: Response) => this.userController.verify(req, res));
     this.router.route('/:id').get((req: Request, res: Response) => this.userController.read(req, res));
     this.router.route('/:id').put((req: Request, res: Response) => this.userController.updateById(req, res));
+    this.router.route('/:id').delete((req: Request, res: Response) => this.userController.delete(req, res));
   }
 }

@@ -125,7 +125,7 @@ export class UserController {
       const key = req.query.key ? String(req.query.key) : undefined;
       const sortBy = req.query.sortBy ? String(req.query.sortBy) : undefined;
       const filterBy = req.query.filterBy ? Number(req.query.filterBy) : undefined;
-      const users = await this.userServices.page(page, limit, 2, sortBy, filterBy, key);
+      const users = await this.userServices.page(page, limit, sortBy, filterBy, key);
 
       return res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
@@ -231,13 +231,14 @@ export class UserController {
       ProcessError(e, res);
     }
   }
-  async delete(req: Request, res: Response) {
+  async delete(req: Request, res: Response<IResponse<UserAttributes>>) {
     try {
       const id = Number(req.params.id);
       if (!id) throw new BadRequestException('Invalid id', {});
       const affectedRows = await this.userServices.deleteById(id);
-      res.status(HttpStatusCode.Ok).json({
-        affectedRows: affectedRows || 0,
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Admin was successfully deleted',
       });
     } catch (err) {
       ProcessError(err, res);
