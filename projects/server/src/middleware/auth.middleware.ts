@@ -30,6 +30,10 @@ export default class AuthMiddleware {
           method: 'PATCH',
           route: /^\/api\/users\/verify/,
         },
+        {
+          method: 'GET',
+          route: /^\/api\/document\/[a-f0-9-]+$/i,
+        },
       ];
 
       const isSpecifiedRoute = specifiedRoutes.some(
