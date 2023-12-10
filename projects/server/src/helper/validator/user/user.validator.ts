@@ -14,7 +14,6 @@ export const createUserValidation = () =>
   validate([
     body('name').notEmpty().isString(),
     body('email').isEmail().notEmpty().isString(),
-    body('phoneNumber').notEmpty().isString(),
     body('role_id').notEmpty().isInt(),
     body('password')
       .matches(/[A-Z0-9]/)
