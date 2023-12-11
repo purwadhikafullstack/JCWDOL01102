@@ -7,6 +7,7 @@ import Permissions from '../../database/models/permission.model';
 import Branch from '../../database/models/branch.model';
 import bcrypt from 'bcrypt';
 import JWTService from '../jwt/jwt.service';
+import { ILoginResult } from './interfaces/interfaces';
 export default class UserService {
   async create(input: UserCreationAttributes) {
     try {
@@ -26,7 +27,7 @@ export default class UserService {
     }
   }
 
-  async login(input: Partial<UserCreationAttributes>) {
+  async login(input: Partial<UserCreationAttributes>): Promise<ILoginResult | null> {
     try {
       const email = input.email;
       const pass = input.password;
@@ -34,7 +35,7 @@ export default class UserService {
       const userJson = user.toJSON();
       const matches = await bcrypt.compare(pass!, user.password);
       if (!matches) {
-        return '';
+        return null;
       }
       const perm = userJson.role?.permission?.map((data) => data.permission);
       const respObj = {
@@ -51,7 +52,7 @@ export default class UserService {
 
       const jwtServie = new JWTService();
       const token = await jwtServie.generateToken(respObj);
-      return token;
+      return { token: token, user: respObj } as ILoginResult;
     } catch (e: any) {
       throw new Error(`Login Error : ${e.message}`);
     }
