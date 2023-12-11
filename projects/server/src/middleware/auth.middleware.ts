@@ -8,7 +8,6 @@ interface ISpecifiedRoute {
   route: RegExp;
   method: string;
 }
-
 export default class AuthMiddleware {
   public async checkAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {

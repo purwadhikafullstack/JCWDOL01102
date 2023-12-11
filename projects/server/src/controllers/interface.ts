@@ -1,3 +1,5 @@
+import { UserCreationAttributes } from '../database/models/user.model';
+
 interface IMeta {
   page: number;
   limit: number;
@@ -28,7 +30,7 @@ export interface ICheckEmail {
 }
 
 export interface ILoginResponse {
-  email: string;
+  user: Partial<UserCreationAttributes>;
   token: string;
 }
 

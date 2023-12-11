@@ -206,8 +206,8 @@ export class UserController {
   }
   async Login(req: Request, res: Response<IResponse<ILoginResponse>>) {
     try {
-      const token = await this.userServices.login(req.body);
-      if (!token) {
+      const result = await this.userServices.login(req.body);
+      if (!result) {
         return res.status(HttpStatusCode.NotFound).send({
           statusCode: HttpStatusCode.NotFound,
           message: 'Username or Password is incorrect',
@@ -217,8 +217,8 @@ export class UserController {
         statusCode: HttpStatusCode.Ok,
         message: 'Login successfull',
         data: {
-          email: req.body.email,
-          token: token,
+          token: result.token,
+          user: result.user,
         },
       });
     } catch (e) {
@@ -235,7 +235,7 @@ export class UserController {
     try {
       const id = Number(req.params.id);
       if (!id) throw new BadRequestException('Invalid id', {});
-      const affectedRows = await this.userServices.deleteById(id);
+      await this.userServices.deleteById(id);
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Admin was successfully deleted',

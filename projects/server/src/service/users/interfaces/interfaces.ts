@@ -1,3 +1,5 @@
+import { UserAttributes } from '../../../database/models/provinces.mode';
+import { UserCreationAttributes } from '../../../database/models/user.model';
 import { IPaginateResponse } from '../../../helper/interface/paginate/paginateResponse.interface';
 
 export interface IResponseUser<T> {
@@ -11,4 +13,9 @@ export interface IResponseUserPaginate<T> {
   message: string;
   data: Partial<T>;
   meta: IPaginateResponse;
+}
+
+export interface ILoginResult {
+  user: Partial<UserCreationAttributes>;
+  token: string;
 }
