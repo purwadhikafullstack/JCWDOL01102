@@ -14,15 +14,18 @@ export class ProductRouter {
   }
 
   private routes() {
+    this.router.get('/find-duplicate', (req: Request, res: Response) =>
+      this.productController.findDuplicateProduct(req, res)
+    );
     this.router.post('/', multerMiddleware, createProductValidator(), (req: Request, res: Response) =>
       this.productController.createProduct(req, res)
     );
-    this.router.get('/', (req: Request, res: Response) => this.productController.page(req, res));
     this.router.put('/:id', (req: Request, res: Response) => this.productController.updateProduct(req, res));
     this.router.delete('/:id', (req: Request, res: Response) => this.productController.deleteProduct(req, res));
     this.router.get('/:id', (req: Request, res: Response) => this.productController.getProductById(req, res));
     this.router.put('/image/:id', multerMiddleware, (req: Request, res: Response) =>
       this.productController.updateWithImageById(req, res)
     );
+    this.router.get('/', (req: Request, res: Response) => this.productController.page(req, res));
   }
 }

@@ -56,7 +56,7 @@ export class CategoryController {
 
   async allCategory(req: Request, res: Response<IResponse<any>>) {
     try {
-      const categories = await this.categoryService.allCategory(1);
+      const categories = await this.categoryService.allCategory(req.user.branchId);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,

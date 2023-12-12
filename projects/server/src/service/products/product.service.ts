@@ -1,18 +1,22 @@
 /* eslint-disable no-useless-catch */
 import { Op } from 'sequelize';
+import configConstants from '../../config/constants';
+import { sortOptions } from '../../database/models/base.model';
 import Branch from '../../database/models/branch.model';
 import Category from '../../database/models/category.model';
 import Product from '../../database/models/products.model';
+import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
 import DocumentService from '../documents/documents.service';
 import { IRequestProduct } from './interface/interfaces';
-import configConstants from '../../config/constants';
-import { sortOptions } from '../../database/models/base.model';
+import { ProductStockService } from '../ProductStock/product_stock.service';
 export default class ProductService {
   documentService: DocumentService;
+  productStockService: ProductStockService;
 
   constructor() {
     this.documentService = new DocumentService();
+    this.productStockService = new ProductStockService();
   }
 
   async createProduct(file: Express.Multer.File, input: IRequestProduct) {
@@ -66,7 +70,7 @@ export default class ProductService {
           },
           {
             keySearch: 'branchId',
-            keyValue: branchId.toString(),
+            keyValue: branchId,
             operator: Op.eq,
             keyColumn: 'branchId',
           },
@@ -97,13 +101,26 @@ export default class ProductService {
     };
   }
 
-  async updateById(id: number, branchId: number, input: Partial<IRequestProduct>) {
+  async updateById(id: number, branchId: number, input: Partial<IRequestProduct>, userId: number) {
+    const t = await Product.sequelize?.transaction();
     try {
       const product = await Product.findOne({ where: { id, branchId } });
       if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
-      await product.update(input);
+
+      await product.update(input, { transaction: t });
+      if (product.stock !== input.stock) {
+        await this.productStockService.updateProductStock({
+          currentStock: input.stock!,
+          lastStock: product.stock,
+          productId: product.id,
+          branchId: product.branchId,
+          userId: userId,
+        });
+      }
+      await t?.commit();
       return product;
     } catch (error) {
+      await t?.rollback();
       throw error;
     }
   }
@@ -129,19 +146,51 @@ export default class ProductService {
     }
   }
 
-  async updateWithImage(file: Express.Multer.File, id: number, branchId: number, input: Partial<IRequestProduct>) {
+  async updateWithImage(
+    file: Express.Multer.File,
+    id: number,
+    branchId: number,
+    input: Partial<IRequestProduct>,
+    userId: number
+  ) {
+    const t = await Product.sequelize?.transaction();
     try {
       const product = await Product.findOne({ where: { id, branchId } });
       if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
+
       const document = await this.documentService.uploadDocument(file, 'product');
       if (!document.id)
         throw new UnprocessableEntityException('Error uploading document', {
           document: 'Error uploading document',
         });
-      await product.update({
-        ...input,
-        imageId: document.id,
-      });
+      await product.update(
+        {
+          ...input,
+          imageId: document.id,
+        },
+        { transaction: t }
+      );
+      if (product.stock !== input.stock) {
+        await this.productStockService.updateProductStock({
+          currentStock: input.stock!,
+          lastStock: product.stock,
+          productId: product.id,
+          branchId: product.branchId,
+          userId: userId,
+        });
+      }
+      await t?.commit();
+      return product;
+    } catch (error) {
+      await t?.rollback();
+      throw error;
+    }
+  }
+
+  async findDuplicateProduct(branchId: number, name: string) {
+    try {
+      const product = await Product.findOne({ where: { branchId, name } });
+      if (product) throw new BadRequestException('Product already exist', { name: 'Product already exist' });
       return product;
     } catch (error) {
       throw error;
