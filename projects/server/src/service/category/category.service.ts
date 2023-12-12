@@ -65,6 +65,12 @@ export class CategoryService {
           branchId,
         },
       });
+      const product = await Product.findOne({
+        where: {
+          categoryId: id,
+        },
+      });
+      if (product) throw new Error('Category have product');
       if (!category) throw new Error('Category not found');
       await category.destroy();
       return category;
