@@ -1,5 +1,5 @@
 import { HttpStatusCode } from 'axios';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { messages } from '../../config/message';
 import { sortOptions } from '../../database/models/base.model';
 import Product from '../../database/models/products.model';
@@ -88,6 +88,21 @@ export default class ProductController {
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
         data: product,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async getAllByBranchId(req: Request, res: Response<IResponse<any>>, next: NextFunction) {
+    try {
+      if (!req.query.branchId) return next();
+      const { branchId } = req.query;
+      const products = await this.productService.getAllByBranchId(Number(branchId));
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: products,
       });
     } catch (error) {
       ProcessError(error, res);

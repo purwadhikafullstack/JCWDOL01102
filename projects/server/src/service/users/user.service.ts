@@ -27,7 +27,7 @@ export default class UserService {
     }
   }
 
-  async login(input: Partial<UserCreationAttributes>): Promise<ILoginResult | null> {
+  async login(input: Partial<UserCreationAttributes>) {
     try {
       const email = input.email;
       const pass = input.password;
@@ -35,7 +35,7 @@ export default class UserService {
       const userJson = user.toJSON();
       const matches = await bcrypt.compare(pass!, user.password);
       if (!matches) {
-        return null;
+        return '';
       }
       const perm = userJson.role?.permission?.map((data) => data.permission);
       const respObj = {
@@ -77,7 +77,7 @@ export default class UserService {
           {
             model: Branch,
             as: 'branch',
-            attributes: ['name'],
+            attributes: ['name', 'id'],
           },
         ],
       });
