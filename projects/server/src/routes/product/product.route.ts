@@ -14,6 +14,9 @@ export default class ProductRouter {
   }
 
   private routes() {
+    this.router.get('/find-duplicate', (req: Request, res: Response) =>
+      this.productController.findDuplicateProduct(req, res)
+    );
     this.router.post('/', multerMiddleware, createProductValidator(), (req: Request, res: Response) =>
       this.productController.createProduct(req, res)
     );
@@ -28,5 +31,6 @@ export default class ProductRouter {
     this.router.put('/image/:id', multerMiddleware, (req: Request, res: Response) =>
       this.productController.updateWithImageById(req, res)
     );
+    this.router.get('/', (req: Request, res: Response) => this.productController.page(req, res));
   }
 }
