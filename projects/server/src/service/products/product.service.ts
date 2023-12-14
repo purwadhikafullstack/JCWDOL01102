@@ -146,6 +146,26 @@ export default class ProductService {
     }
   }
 
+  async getByIdNormal(id: number, branchId: number) {
+    try {
+      const product = await Product.findOne({ where: { id, branchId } });
+      if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getByBranch(branchId: number) {
+    try {
+      const product = await Product.findAll({ where: { branchId } });
+      if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async updateWithImage(
     file: Express.Multer.File,
     id: number,

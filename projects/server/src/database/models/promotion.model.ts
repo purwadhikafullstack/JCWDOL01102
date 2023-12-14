@@ -50,11 +50,11 @@ Promotions.init(
     },
     value: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     valueType: {
       type: new DataTypes.STRING(255),
-      allowNull: false,
+      allowNull: true,
     },
   },
   { ...baseModelConfig, modelName: 'promotions', tableName: 'promotions' }

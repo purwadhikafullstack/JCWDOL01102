@@ -15,7 +15,7 @@ export default class VoucherController {
   async create(req: Request, res: Response<IResponse<VoucherCreationAttributes>>) {
     try {
       const { productId } = req.query;
-      const voucher = await this.voucherService.create(Number(productId), req.body);
+      const voucher = await this.voucherService.create(Number(productId), req.user.branchId, req.body);
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Voucher has been created successfully',

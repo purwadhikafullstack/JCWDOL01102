@@ -13,6 +13,7 @@ export default class PromotionController {
 
   async create(req: Request, res: Response<IResponse<PromotionCreationAttributes>>) {
     try {
+      console.log(req.body);
       const promotion = await this.promotionService.create(req.body);
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,

@@ -1,7 +1,8 @@
-import { DataTypes, HasManyAddAssociationMixin, HasManyRemoveAssociationMixin, Optional } from 'sequelize';
+import { DataTypes, Optional } from 'sequelize';
 import BaseModel, { BaseModelAttributes, baseModelInit, baseModelConfig } from './base.model';
 import Product from './products.model';
 import ProductHasVouchers from './productHasVoucher.model';
+import { BelongsToManyAddAssociationMixin, BelongsToManyRemoveAssociationMixin } from 'sequelize';
 
 interface VoucherAttributes extends BaseModelAttributes {
   name: string;
@@ -32,19 +33,25 @@ export default class Vouchers
   public readonly updatedAt!: Date;
   public readonly deletedAt!: Date;
 
-  declare addProduct: HasManyAddAssociationMixin<Product, number>;
-  declare removeProduct: HasManyRemoveAssociationMixin<Product, number>;
+  declare addProduct: BelongsToManyAddAssociationMixin<Product, Product['id']>;
+  declare removeProduct: BelongsToManyRemoveAssociationMixin<Product, Product['id']>;
 }
 
 Vouchers.belongsToMany(Product, {
   through: ProductHasVouchers,
   as: 'product',
-  foreignKey: 'product_id',
+  foreignKey: 'productId',
+  sourceKey: 'id',
+  otherKey: 'voucherId',
+  timestamps: true,
 });
 Product.belongsToMany(Vouchers, {
   through: ProductHasVouchers,
   as: 'voucher',
-  foreignKey: 'voucher_id',
+  foreignKey: 'voucherId',
+  sourceKey: 'id',
+  otherKey: 'productId',
+  timestamps: true,
 });
 
 Vouchers.init(

@@ -4,6 +4,7 @@ import Product from '../../database/models/products.model';
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
 import ProductHasVoucherService from '../productHasVoucher/product-has-voucher.service';
 import ProductService from '../products/product.service';
+import ProductHasVouchers from '../../database/models/productHasVoucher.model';
 
 export default class VoucherService {
   productHasVoucherService: ProductHasVoucherService;
@@ -13,16 +14,20 @@ export default class VoucherService {
     this.productHasVoucherService = new ProductHasVoucherService();
     this.productService = new ProductService();
   }
-  async create(productId: number | null | undefined, input: VoucherCreationAttributes) {
+  async create(productId: number | null | undefined, branchId: number, input: VoucherCreationAttributes) {
+    // const t = await Vouchers.sequelize?.transaction();
     try {
       const voucher = await Vouchers.create(input);
-      console.log(productId);
       if (productId) {
-        const product = await this.productService.getByIdAndBranch(productId);
-        await voucher.addProduct(product);
+        const product = await this.productService.getByIdNormal(productId, branchId);
+        // await voucher.addProduct(product, { transaction: t });
+        // this.productHasVoucherService.create({voucherId : voucher.id, productId : product.id})
+        ProductHasVouchers.create({ productId: product.id, voucherId: voucher.id });
       }
+      // await t?.commit();
       return voucher;
     } catch (error: any) {
+      // t?.rollback();
       throw new Error(`Error creating Voucher: ${error.message}`);
     }
   }

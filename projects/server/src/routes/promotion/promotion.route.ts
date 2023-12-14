@@ -12,11 +12,11 @@ export default class PromotionRouter {
   }
 
   private route() {
-    this.router
-      .route('/')
-      .get((req: Request, res: Response) => this.promoController.page(req, res))
-      .post((req: Request, res: Response) => this.promoController.create(req, res));
     this.router.route('/:id').put((req: Request, res: Response) => this.promoController.update(req, res));
     this.router.route('/:id').delete((req: Request, res: Response) => this.promoController.delete(req, res));
+    this.router
+      .route('')
+      .post((req: Request, res: Response) => this.promoController.create(req, res))
+      .get((req: Request, res: Response) => this.promoController.page(req, res));
   }
 }
