@@ -1,12 +1,11 @@
 import { HttpStatusCode } from 'axios';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { messages } from '../../config/message';
 import { sortOptions } from '../../database/models/base.model';
 import Product from '../../database/models/products.model';
 import { ProcessError } from '../../helper/Error/errorHandler';
 import ProductService from '../../service/products/product.service';
 import { IResponse } from '../interface';
-import sequelize, { Transaction } from 'sequelize';
 
 export default class ProductController {
   productService: ProductService;
@@ -29,6 +28,19 @@ export default class ProductController {
     }
   }
 
+  async getAllProductByBranch(req: Request, res: Response<IResponse<Product[]>>, next: NextFunction) {
+    if (req.query.page) return next();
+    try {
+      const products = await this.productService.getByBranch(req.user.branchId);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Get product by branch success',
+        data: products,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
   async page(req: Request, res: Response<IResponse<any>>) {
     try {
       const { page, limit } = req.query;

@@ -1,9 +1,9 @@
-import { Request, Response, Router } from 'express';
+import { NextFunction, Request, Response, Router } from 'express';
 import ProductController from '../../controllers/product/product.controller';
 import { multerMiddleware } from '../../middleware/image.multer.middleware';
 import { createProductValidator } from '../../helper/validator/product/product.validator';
 
-export class ProductRouter {
+export default class ProductRouter {
   router: Router;
   productController: ProductController;
 
@@ -26,6 +26,10 @@ export class ProductRouter {
     this.router.put('/image/:id', multerMiddleware, (req: Request, res: Response) =>
       this.productController.updateWithImageById(req, res)
     );
-    this.router.get('/', (req: Request, res: Response) => this.productController.page(req, res));
+    this.router.get(
+      '/',
+      (req: Request, res: Response, next: NextFunction) => this.productController.getAllProductByBranch(req, res, next),
+      (req: Request, res: Response) => this.productController.page(req, res)
+    );
   }
 }

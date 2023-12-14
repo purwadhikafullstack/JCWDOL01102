@@ -14,9 +14,11 @@ import { AddressRouter } from './routes/address/address.route';
 import { MasterDataRouter } from './routes/master_data/master_data.route';
 import AuthMiddleware from './middleware/auth.middleware';
 import DocuementRouter from './routes/document/document.route';
-import { ProductRouter } from './routes/product/product.route';
+import ProductRouter from './routes/product/product.route';
 import { CategoryRouter } from './routes/category/category.route';
 import { BranchRoute } from './routes/branch/branch.route';
+import VoucherRouter from './routes/voucher/voucher.route';
+import PromotionRouter from './routes/promotion/promotion.route';
 
 const Reset = '\x1b[0m';
 // const FgRed = '\x1b[31m';
@@ -60,6 +62,8 @@ export default class Server {
     const authMiddleware = new AuthMiddleware();
     const categoryRouter = new CategoryRouter().router;
     const branchRouter = new BranchRoute().route;
+    const voucherRouter = new VoucherRouter().router;
+    const promotionRouter = new PromotionRouter().router;
 
     // Add to server routes the mainRouter, the api routes should be added before the 404 route
     // The first api name should be "/api" , e.g. /api/users
@@ -73,6 +77,8 @@ export default class Server {
     this.expressInstance.use('/api/product', productRouter);
     this.expressInstance.use('/api/category', categoryRouter);
     this.expressInstance.use('/api/branches', branchRouter);
+    this.expressInstance.use('/api/vouchers', voucherRouter);
+    this.expressInstance.use('/api/promotions', promotionRouter);
 
     // Register 404 route , this should be the last route
     // @ts-ignore
