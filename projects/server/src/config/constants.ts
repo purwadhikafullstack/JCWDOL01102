@@ -26,5 +26,6 @@ const configConstants = {
   FE_PORT: parseInt(process.env.FE_PORT ?? '5173', 10) ?? 5173,
   JWT_PRIVATE_KEY: process.env.JWT_PRIVATE_KEY ?? '',
   API_URL: `${process.env.BE_HOST ?? 'http://localhost'}:${process.env.PORT ?? '8000'}`,
+  OPEN_CAGE_API_KEY: process.env.OPEN_CAGE_API_KEY ?? '',
 };
 export default configConstants;
