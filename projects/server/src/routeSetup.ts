@@ -52,6 +52,7 @@ export class Routes {
   }
 
   routesSetup(expressInstance: express.Express) {
+    expressInstance.use('/api/external', this.externalRouter);
     expressInstance.use(this.authMiddleware.checkAuth);
     expressInstance.use('/', this.router);
     expressInstance.use('/api/config', this.configRouter);
@@ -66,6 +67,5 @@ export class Routes {
     expressInstance.use('/api/promotions', this.promotionRouter);
     expressInstance.use('/api/common', this.commonRouter);
     expressInstance.use('/api/order', this.orderRouter);
-    expressInstance.use('/api/external', this.externalRouter);
   }
 }
