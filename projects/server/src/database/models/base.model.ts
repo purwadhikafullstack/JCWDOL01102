@@ -11,7 +11,7 @@ interface SearchCondition {
 }
 
 export interface BaseModelAttributes {
-  id?: number;
+  id: number;
   createdAt?: Date | null;
   updatedAt?: Date | null;
   deletedAt?: Date | null;
