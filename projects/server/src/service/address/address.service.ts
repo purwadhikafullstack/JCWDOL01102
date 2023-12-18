@@ -25,7 +25,7 @@ export class AddressService {
     return address;
   }
 
-  async updateAddress(id: number, addressId: number, input: AddressCreationAttributes): Promise<Addresses> {
+  async updateAddress(id: number, addressId: number, input: Partial<Addresses>): Promise<Addresses> {
     const isExists = await Addresses.findOne({ where: { id: addressId, userId: id } });
     if (!isExists) throw new UnprocessableEntityException('Address not found', { id: addressId });
     if (input.isDefault) await Addresses.bulkUpdate({ isDefault: false }, { userId: id });

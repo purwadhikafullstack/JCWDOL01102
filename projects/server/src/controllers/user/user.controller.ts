@@ -204,7 +204,7 @@ export class UserController {
       ProcessError(err, res);
     }
   }
-  async Login(req: Request, res: Response<IResponse<ILoginResponse>>) {
+  async Login(req: Request, res: Response<IResponse<any>>) {
     try {
       const result = await this.userServices.login(req.body);
       if (!result) {
@@ -214,6 +214,7 @@ export class UserController {
         });
       }
       res.status(HttpStatusCode.Ok).send({
+        // eslint-disable-next-line max-lines
         statusCode: HttpStatusCode.Ok,
         message: 'Login successfull',
         data: {
