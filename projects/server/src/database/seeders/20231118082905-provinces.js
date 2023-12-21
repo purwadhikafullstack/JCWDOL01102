@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use strict';
 
-
 // import provinces from '../seeders/data/provinces.json';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -155,7 +154,6 @@ module.exports = {
         province_name: 'Sumatera Utara',
       },
     ];
-    console.log(provinces);
     await queryInterface.bulkInsert(
       'rajaongkir_provinces',
       provinces.map((province) => ({
