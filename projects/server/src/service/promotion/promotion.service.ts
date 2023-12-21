@@ -4,7 +4,6 @@ import Promotions, {
   PromotionUpdateAttributes,
 } from '../../database/models/promotion.model';
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
-import Product from '../../database/models/products.model';
 
 export default class PromotionService {
   async create(input: PromotionCreationAttributes) {
@@ -44,7 +43,7 @@ export default class PromotionService {
   }
   async page(page: number, limit: number, sortBy?: string, filterBy?: number, key?: string) {
     try {
-      Promotions.paginate({
+      const promotions = await Promotions.paginate({
         page,
         limit,
         searchConditions: [
@@ -55,16 +54,17 @@ export default class PromotionService {
             keyColumn: 'name',
           },
         ],
-        includeConditions: [
-          {
-            model: Product,
-            as: 'product',
-            attributes: ['name', 'id'],
-            where: filterBy ? { id: filterBy } : undefined,
-          },
-        ],
-        sortOptions: sortBy ? { key: 'name', order: sortBy } : undefined,
+        // includeConditions: [
+        //   {
+        //     model: Product,
+        //     as: 'product',
+        //     attributes: ['name', 'id'],
+        //     where: filterBy ? { id: filterBy } : undefined,
+        //   },
+        // ],
+        // sortOptions: sortBy ? { key: 'name', order: sortBy } : undefined,
       });
+      return promotions;
     } catch (e: any) {
       throw new Error(`Promotion Paginate Error : ${e.message}`);
     }

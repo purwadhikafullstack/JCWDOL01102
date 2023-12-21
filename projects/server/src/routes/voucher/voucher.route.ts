@@ -14,10 +14,15 @@ export default class VoucherRouter {
 
   private route() {
     this.router
+      .route('/products')
+      .get((req: Request, res: Response) => this.voucherController.getProductVoucher(req, res))
+      .post((req: Request, res: Response) => this.voucherController.handleProductVoucherPost(req, res));
+    this.router.route('/:id').put((req: Request, res: Response) => this.voucherController.update(req, res));
+    this.router.route('/:id').delete((req: Request, res: Response) => this.voucherController.delete(req, res));
+
+    this.router
       .route('/')
       .get((req: Request, res: Response) => this.voucherController.page(req, res))
       .post(createVoucherCreationValidator(), (req: Request, res: Response) => this.voucherController.create(req, res));
-    this.router.route('/:id').put((req: Request, res: Response) => this.voucherController.update(req, res));
-    this.router.route('/:id').delete((req: Request, res: Response) => this.voucherController.delete(req, res));
   }
 }

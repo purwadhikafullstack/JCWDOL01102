@@ -24,7 +24,7 @@ export default class AuthMiddleware {
         },
         {
           method: 'POST',
-          route: /^\/api\/users\/login/,
+          route: /^\/api\/users/,
         },
         {
           method: 'PATCH',

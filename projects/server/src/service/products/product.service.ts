@@ -158,7 +158,7 @@ export default class ProductService {
 
   async getByBranch(branchId: number) {
     try {
-      const product = await Product.findAll({ where: { branchId } });
+      const product = await Product.findAll({ where: { branchId }, raw: true, attributes: ['name', 'id'] });
       if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
       return product;
     } catch (error) {

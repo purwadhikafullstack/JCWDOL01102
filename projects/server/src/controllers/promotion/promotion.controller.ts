@@ -13,7 +13,6 @@ export default class PromotionController {
 
   async create(req: Request, res: Response<IResponse<PromotionCreationAttributes>>) {
     try {
-      console.log(req.body);
       const promotion = await this.promotionService.create(req.body);
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
@@ -63,12 +62,12 @@ export default class PromotionController {
       const key = req.query.key ? String(req.query.key) : undefined;
       const sortBy = req.query.sortBy ? String(req.query.sortBy) : undefined;
       const filterBy = req.query.filterBy ? Number(req.query.filterBy) : undefined;
-      const vouchers = await this.promotionService.page(page, limit, sortBy, filterBy, key);
+      const promotions = await this.promotionService.page(page, limit, sortBy, filterBy, key);
 
       return res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Pagination success',
-        data: vouchers,
+        data: promotions,
       });
     } catch (e) {
       ProcessError(e, res);
