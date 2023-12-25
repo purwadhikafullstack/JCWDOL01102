@@ -1,64 +1,78 @@
 import { Request, Response } from 'express';
-import { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
-import { IResponse, IUserBodyReq } from '../interface';
-import bcrypt from 'bcrypt';
-import generateReferral from '../../helper/function/generatReferral';
-import { v4 as uuidV4 } from 'uuid';
-import UserService from '../../service/users/user.service';
+import { ILoginResponse, IMailerResponse, IResponse } from '../interface';
 import { HttpStatusCode } from 'axios';
 import { ProcessError } from '../../helper/Error/errorHandler';
-export default class authController {
-  private userServices: UserService;
+import AuthService from '../../service/auth/auth.service';
+import MailerService from '../../service/nodemailer.service';
+import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { messages } from '../../config/message';
+import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
+export default class AuthController {
+  private authService: AuthService;
 
   constructor() {
-    this.userServices = new UserService();
+    this.authService = new AuthService();
   }
-  async create(req: Request, res: Response<IResponse<UserAttributes>>) {
+
+  async sendEmail(req: Request, res: Response<IResponse<IMailerResponse>>) {
     try {
-      const attr: IUserBodyReq = req.body;
-      const hashedPass = await bcrypt.hash(attr.password, 10);
-      attr.password = hashedPass;
-      let referralCode = '';
-      let verifyToken = '';
-      let userRefferal = {};
-      let userVerifyToken = {};
-
-      if (!attr.branch_id) {
-        while (userRefferal && userVerifyToken) {
-          try {
-            referralCode = generateReferral(6);
-            verifyToken = uuidV4();
-            userRefferal = await this.userServices.findOne({ referralCode: referralCode });
-            userVerifyToken = await this.userServices.findOne({ verifyToken: verifyToken });
-          } catch (e) {
-            break;
-          }
-        }
-      }
-
-      const newUserAttr: UserCreationAttributes = {
-        ...attr,
-        referralCode: !attr.branch_id ? referralCode : '',
-        address: '',
-        isDeleted: false,
-        isVerified: !attr.branch_id ? false : true,
-        birthdate: null,
-        resetPasswordToken: null,
-        verifyToken: !attr.branch_id ? verifyToken : '',
-        createdAt: null,
-        updatedAt: null,
-        deletedAt: null,
-      };
-
-      const user = await this.userServices.create(newUserAttr);
+      const email = req.query.email as string;
+      const name = req.query.name as string;
+      const verifyToken = req.query.verifyToken as string;
+      const emailService = new MailerService();
+      const info: SMTPTransport.SentMessageInfo = await emailService.sendEmail(verifyToken, email, name);
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Email was successfully sent',
+        data: {
+          to: email,
+          message: info.response,
+          status: 'sent',
+        },
+      });
+    } catch (e: any) {
+      ProcessError(e, res);
+    }
+  }
+  async verify(req: Request, res: Response<IResponse<any>>) {
+    try {
+      const verifyToken = req.body.verifyToken;
+      const result = await this.authService.updateByVerifyToken(verifyToken, { isVerified: true });
 
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
-        message: !attr.branch_id ? 'User has been created succesfully' : 'Admin has been created succesfully',
-        data: user ?? {},
+        message: messages.SUCCESS,
+        data: result ?? {},
       });
     } catch (err) {
       ProcessError(err, res);
+    }
+  }
+  async Login(req: Request, res: Response<IResponse<ILoginResponse>>) {
+    try {
+      const result = await this.authService.login(req.body);
+      if (!result) {
+        return res.status(HttpStatusCode.NotFound).send({
+          statusCode: HttpStatusCode.NotFound,
+          message: 'Username or Password is incorrect',
+        });
+      }
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Login successfull',
+        data: {
+          token: result.token,
+          user: result.user,
+        },
+      });
+    } catch (e) {
+      if (e instanceof NotFoundException) {
+        return res.status(HttpStatusCode.Unauthorized).send({
+          statusCode: HttpStatusCode.Unauthorized,
+          message: 'Email or Password is incorrect',
+        });
+      }
+      ProcessError(e, res);
     }
   }
 }

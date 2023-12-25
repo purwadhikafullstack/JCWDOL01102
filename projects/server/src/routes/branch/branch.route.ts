@@ -13,7 +13,7 @@ export class BranchRoute {
   }
 
   private routes() {
-    this.route.get('/', permissionsMiddleware(['manage_branch']), (req: Request, res: Response) =>
+    this.route.get('/', permissionsMiddleware(['can_read_branch']), (req: Request, res: Response) =>
       this.branchController.getAllBranch(req, res)
     );
   }

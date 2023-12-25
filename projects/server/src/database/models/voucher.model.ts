@@ -12,6 +12,7 @@ interface VoucherAttributes extends BaseModelAttributes {
   value: number;
   valueType: string;
   minimumPrice: number;
+  status: string;
 }
 
 export interface VoucherCreationAttributes extends Optional<VoucherAttributes, 'id'> {}
@@ -29,6 +30,7 @@ export default class Vouchers
   public value!: number;
   public valueType!: string;
   public minimumPrice!: number;
+  public status!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
   public readonly deletedAt!: Date;
@@ -36,23 +38,6 @@ export default class Vouchers
   declare addProduct: BelongsToManyAddAssociationMixin<Product, Product['id']>;
   declare removeProduct: BelongsToManyRemoveAssociationMixin<Product, Product['id']>;
 }
-
-Vouchers.belongsToMany(Product, {
-  through: ProductHasVouchers,
-  as: 'product',
-  foreignKey: 'productId',
-  sourceKey: 'id',
-  otherKey: 'voucherId',
-  timestamps: true,
-});
-Product.belongsToMany(Vouchers, {
-  through: ProductHasVouchers,
-  as: 'voucher',
-  foreignKey: 'voucherId',
-  sourceKey: 'id',
-  otherKey: 'productId',
-  timestamps: true,
-});
 
 Vouchers.init(
   {
@@ -85,6 +70,28 @@ Vouchers.init(
       type: DataTypes.INTEGER(),
       allowNull: true,
     },
+    status: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const now = new Date();
+        if (now >= new Date(this.dateStart) && now <= new Date(this.dateEnd)) {
+          return 'Active';
+        } else {
+          return 'Inactive';
+        }
+      },
+    },
   },
   { ...baseModelConfig, modelName: 'vouchers', tableName: 'vouchers' }
 );
+
+Vouchers.hasMany(ProductHasVouchers, {
+  sourceKey: 'id',
+  foreignKey: 'voucherId',
+  as: 'productHasVoucher',
+});
+
+ProductHasVouchers.belongsTo(Vouchers, {
+  foreignKey: 'voucherId',
+  as: 'voucher',
+});

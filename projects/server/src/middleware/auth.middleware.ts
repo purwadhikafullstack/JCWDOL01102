@@ -11,7 +11,7 @@ interface ISpecifiedRoute {
 export default class AuthMiddleware {
   public async checkAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const bypasAuth = ['/api/users/email', '/api/users/login', '/api/users/verify', '/api/common'];
+      const bypasAuth = ['/api/common', '/api/auth'];
       for (const whitelist of bypasAuth) {
         if (req.path.startsWith(whitelist)) {
           return next();
@@ -24,11 +24,7 @@ export default class AuthMiddleware {
         },
         {
           method: 'POST',
-          route: /^\/api\/users\/login/,
-        },
-        {
-          method: 'PATCH',
-          route: /^\/api\/users\/verify/,
+          route: /^\/api\/users(?:\?.*)?$/,
         },
         {
           method: 'GET',
