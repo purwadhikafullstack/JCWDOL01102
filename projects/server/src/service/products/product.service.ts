@@ -156,9 +156,25 @@ export default class ProductService {
     }
   }
 
-  async getByBranch(branchId: number) {
+  async getByBranch(branchId: number, key?: string) {
     try {
-      const product = await Product.findAll({ where: { branchId }, raw: true, attributes: ['name', 'id'] });
+      const product = await Product.findAll({
+        where: { branchId, name: { [Op.like]: key ? key : '' } },
+        raw: true,
+        attributes: ['name', 'id'],
+      });
+      if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
+      return product;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getByBranchNoFilter(branchId: number) {
+    try {
+      const product = await Product.findAll({
+        where: { branchId },
+      });
       if (!product) throw new UnprocessableEntityException('Product not found', { id: 'Product not found' });
       return product;
     } catch (error) {

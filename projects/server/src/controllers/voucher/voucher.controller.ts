@@ -4,7 +4,7 @@ import { HttpStatusCode } from 'axios';
 import { ProcessError } from '../../helper/Error/errorHandler';
 import { IResponse } from '../interface';
 import { VoucherCreationAttributes } from '../../database/models/voucher.model';
-import { IProductVoucher } from '../../service/voucher/interfaces/interfaces';
+import { IGetProductVoucherResponse } from '../../service/voucher/interfaces/interfaces';
 ///<reference path="./custom.d.ts" />
 
 export default class VoucherController {
@@ -26,10 +26,14 @@ export default class VoucherController {
     }
   }
 
-  async getProductVoucher(req: Request, res: Response<IResponse<IProductVoucher[]>>) {
+  async getProductVoucher(req: Request, res: Response<IResponse<IGetProductVoucherResponse>>) {
     try {
-      const { voucherId } = req.query;
-      const productHasVouchers = await this.voucherService.getPoductVoucher(Number(voucherId), req.user.branchId);
+      const { voucherId, key } = req.query;
+      const productHasVouchers = await this.voucherService.getPoductVoucher(
+        Number(voucherId),
+        req.user.branchId,
+        String(key)
+      );
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Product Voucher get success',

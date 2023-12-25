@@ -4,6 +4,7 @@ import Promotions, {
   PromotionUpdateAttributes,
 } from '../../database/models/promotion.model';
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
+import Product from '../../database/models/products.model';
 
 export default class PromotionService {
   async create(input: PromotionCreationAttributes) {
@@ -41,28 +42,45 @@ export default class PromotionService {
       throw new Error(`Error Promotion Voucher: ${error.message}`);
     }
   }
-  async page(page: number, limit: number, sortBy?: string, filterBy?: number, key?: string) {
+  async page(page: number, limit: number, sortBy?: string, filterType?: string, filterBy?: string, key?: string) {
     try {
+      const search = [
+        {
+          keySearch: 'name',
+          keyValue: key!,
+          operator: Op.like,
+          keyColumn: 'name',
+        },
+      ];
+      if (filterType === 'type') {
+        search.push({
+          keySearch: 'type',
+          keyValue: filterBy!,
+          operator: Op.like,
+          keyColumn: 'type',
+        });
+      }
       const promotions = await Promotions.paginate({
         page,
         limit,
-        searchConditions: [
+        searchConditions: search,
+        sortOptions: sortBy ? { key: 'name', order: sortBy } : undefined,
+        symbolCondition:
+          filterType === 'status'
+            ? {
+                [filterBy === 'active' ? Op.and : Op.or]: [
+                  { dateStart: { [filterBy === 'active' ? Op.lte : Op.gt]: new Date() } },
+                  { dateEnd: { [filterBy === 'active' ? Op.gte : Op.lt]: new Date() } },
+                ],
+              }
+            : undefined,
+        includeConditions: [
           {
-            keySearch: 'name',
-            keyValue: key!,
-            operator: Op.like,
-            keyColumn: 'name',
+            model: Product,
+            attributes: ['name'],
+            as: 'product',
           },
         ],
-        // includeConditions: [
-        //   {
-        //     model: Product,
-        //     as: 'product',
-        //     attributes: ['name', 'id'],
-        //     where: filterBy ? { id: filterBy } : undefined,
-        //   },
-        // ],
-        // sortOptions: sortBy ? { key: 'name', order: sortBy } : undefined,
       });
       return promotions;
     } catch (e: any) {

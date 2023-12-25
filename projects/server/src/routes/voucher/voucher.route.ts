@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express';
 import VoucherController from '../../controllers/voucher/voucher.controller';
 import { createVoucherCreationValidator } from '../../helper/validator/voucher/voucher.validator';
+import { permissionsMiddleware } from '../../middleware/permissions.middleware';
 
 export default class VoucherRouter {
   private voucherController: VoucherController;
@@ -15,14 +16,32 @@ export default class VoucherRouter {
   private route() {
     this.router
       .route('/products')
-      .get((req: Request, res: Response) => this.voucherController.getProductVoucher(req, res))
-      .post((req: Request, res: Response) => this.voucherController.handleProductVoucherPost(req, res));
-    this.router.route('/:id').put((req: Request, res: Response) => this.voucherController.update(req, res));
-    this.router.route('/:id').delete((req: Request, res: Response) => this.voucherController.delete(req, res));
+      .get(permissionsMiddleware(['can_read_discount']), (req: Request, res: Response) =>
+        this.voucherController.getProductVoucher(req, res)
+      )
+      .post(permissionsMiddleware(['can_create_discount', 'can_update_discount']), (req: Request, res: Response) =>
+        this.voucherController.handleProductVoucherPost(req, res)
+      );
+    this.router
+      .route('/:id')
+      .put(permissionsMiddleware(['can_update_discount']), (req: Request, res: Response) =>
+        this.voucherController.update(req, res)
+      );
+    this.router
+      .route('/:id')
+      .delete(permissionsMiddleware(['can_update_discount']), (req: Request, res: Response) =>
+        this.voucherController.delete(req, res)
+      );
 
     this.router
       .route('/')
-      .get((req: Request, res: Response) => this.voucherController.page(req, res))
-      .post(createVoucherCreationValidator(), (req: Request, res: Response) => this.voucherController.create(req, res));
+      .get(permissionsMiddleware(['can_read_discount']), (req: Request, res: Response) =>
+        this.voucherController.page(req, res)
+      )
+      .post(
+        createVoucherCreationValidator(),
+        permissionsMiddleware(['can_read_discount']),
+        (req: Request, res: Response) => this.voucherController.create(req, res)
+      );
   }
 }

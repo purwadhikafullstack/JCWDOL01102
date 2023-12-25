@@ -3,7 +3,7 @@ import Vouchers, { VoucherCreationAttributes, VoucherUpdateAttributes } from '..
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
 import ProductHasVoucherService from '../productHasVoucher/product-has-voucher.service';
 import ProductService from '../products/product.service';
-import { IProductVoucher } from './interfaces/interfaces';
+import { IGetProductVoucherResponse, IProductVoucher } from './interfaces/interfaces';
 import { findArrayDifference } from '../../helper/function/findArrayDifference';
 import ProductHasVouchers, { ProductHasVoucherUpdateAttributes } from '../../database/models/productHasVoucher.model';
 
@@ -24,10 +24,10 @@ export default class VoucherService {
     }
   }
 
-  async getPoductVoucher(voucherId: number, branchId: number) {
+  async getPoductVoucher(voucherId: number, branchId: number, key?: string): Promise<IGetProductVoucherResponse> {
     try {
       const productHasVouchers = await this.productHasVoucherService.getAllbyVoucherId(voucherId);
-      const product = await this.productService.getByBranch(branchId);
+      const product = await this.productService.getByBranch(branchId, key);
       const result = product.map((prod) => {
         const obj: IProductVoucher = {
           ...prod,
@@ -35,7 +35,13 @@ export default class VoucherService {
         };
         return obj;
       });
-      return result;
+      const filteredActiveProductIdList = result.filter((prod) => prod.active).map((prod) => String(prod.id));
+      const activeProduct = productHasVouchers.map((prod) => String(prod.productId));
+      return {
+        productList: result,
+        filteredActiveProductIdList,
+        activeProductIdList: activeProduct,
+      };
     } catch (error: any) {
       throw new Error(`Error creating product to voucher: ${error.message}`);
     }
@@ -60,11 +66,10 @@ export default class VoucherService {
           try {
             if (prodSet.has(productId)) {
               console.log(voucherId, productId);
-              const edited = await ProductHasVouchers.update(
+              await ProductHasVouchers.update(
                 { deletedAt: null },
                 { where: { voucherId, productId }, transaction: t, paranoid: false }
               );
-              console.log(edited);
               await t?.commit();
             } else {
               const prodCheck = await ProductHasVouchers.findOne({ where: { voucherId, productId } });
@@ -122,6 +127,7 @@ export default class VoucherService {
   async delete(voucherId: number) {
     try {
       await Vouchers.softDeleteById(voucherId);
+      await ProductHasVouchers.softDelete({ voucherId, deletedAt: null });
     } catch (error: any) {
       throw new Error(`Error Deleting Voucher: ${error.message}`);
     }

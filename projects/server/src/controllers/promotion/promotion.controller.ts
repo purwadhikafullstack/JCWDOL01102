@@ -61,8 +61,16 @@ export default class PromotionController {
       const limit = Number(req.query.limit);
       const key = req.query.key ? String(req.query.key) : undefined;
       const sortBy = req.query.sortBy ? String(req.query.sortBy) : undefined;
-      const filterBy = req.query.filterBy ? Number(req.query.filterBy) : undefined;
-      const promotions = await this.promotionService.page(page, limit, sortBy, filterBy, key);
+      const filterString = req.query.filterBy ? String(req.query.filterBy) : undefined;
+      const filter = filterString?.split(':');
+      const promotions = await this.promotionService.page(
+        page,
+        limit,
+        sortBy,
+        !filter?.[0] ? '' : filter[0],
+        !filter?.[1] ? '' : filter[1],
+        key
+      );
 
       return res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
