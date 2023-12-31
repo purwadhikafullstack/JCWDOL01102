@@ -4,6 +4,8 @@ import axios, { AxiosError } from 'axios';
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
 import { getUniqId } from '../../helper/function/getUniqId';
 import Order from '../../database/models/order.model';
+import { IPostOrderResponse } from '../order/interface';
+import OrderStatus from '../../database/models/orderStatus.model';
 
 interface DokuPaymentCode {
   payload: object;
@@ -106,7 +108,7 @@ export default class DokuService {
       requestTarget,
       timestamp,
     });
-    return getPaymentCode;
+    return getPaymentCode as IPostOrderResponse;
   }
 
   async handlePaymentNotification(headers: any, payload: any) {
@@ -114,7 +116,7 @@ export default class DokuService {
     const clientId = headers['client-id'];
     const requestId = headers['request-id'];
     const requestTimestamp = headers['request-timestamp'];
-    const requestTarget = '/external/doku-payment-notification';
+    const requestTarget = '/api/external/doku-payment-notification';
     const secretKey = 'SK-7WH5ubv2ga7SWwFhkh29';
     const signatureString =
       `Client-Id:${clientId}\n` +
@@ -137,6 +139,12 @@ export default class DokuService {
       const invoiceNumber = payload.order.invoice_number;
 
       const order = await Order.update({ status: 'paid' }, { where: { invoiceNo: invoiceNumber } });
+      const getOrder = await Order.findOne({ where: { invoiceNo: invoiceNumber } });
+      await OrderStatus.create({
+        orderId: getOrder?.id as number,
+        status: 'payment_success',
+      });
+
       console.log('ORDER', order);
     }
   }

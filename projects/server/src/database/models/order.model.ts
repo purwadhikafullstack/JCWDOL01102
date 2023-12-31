@@ -10,6 +10,7 @@ export interface OrderAttributes extends BaseModelAttributes {
   promotionId?: number;
   branchId: number;
   invoiceNo: string;
+  howToPay?: string;
 }
 
 export interface OrderCreationAttributes extends Optional<OrderAttributes, 'id'> {}
@@ -23,6 +24,7 @@ export default class Order extends BaseModel<OrderAttributes, OrderCreationAttri
   public promotionId!: number;
   public branchId!: number;
   public invoiceNo!: string;
+  public howToPay!: string;
 }
 
 Order.init(
@@ -57,6 +59,10 @@ Order.init(
       allowNull: true,
     },
     invoiceNo: {
+      type: new DataTypes.STRING(255),
+      allowNull: true,
+    },
+    howToPay: {
       type: new DataTypes.STRING(255),
       allowNull: true,
     },

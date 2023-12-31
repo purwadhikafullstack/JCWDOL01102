@@ -15,6 +15,9 @@ export default class ProductRouter {
   }
 
   private routes() {
+    this.router.get('/search', permissionsMiddleware(['can_read_product']), (req: Request, res: Response) =>
+      this.productController.getProductMultiple(req, res)
+    );
     this.router.get('/find-duplicate', permissionsMiddleware(['can_read_product']), (req: Request, res: Response) =>
       this.productController.findDuplicateProduct(req, res)
     );
