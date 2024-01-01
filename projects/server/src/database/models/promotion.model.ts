@@ -4,6 +4,7 @@ import Product from './products.model';
 
 interface PromotionAttributes extends BaseModelAttributes {
   name: string;
+  branchId: number;
   type: string;
   dateStart: Date;
   dateEnd: Date;
@@ -20,6 +21,7 @@ export default class Promotions
   implements PromotionAttributes
 {
   public id!: number;
+  public branchId!: number;
   public name!: string;
   public type!: string;
   public dateStart!: Date;
@@ -37,6 +39,10 @@ Promotions.init(
     ...baseModelInit,
     name: {
       type: new DataTypes.STRING(255),
+      allowNull: false,
+    },
+    branchId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     type: {

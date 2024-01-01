@@ -6,6 +6,7 @@ import { BelongsToManyAddAssociationMixin, BelongsToManyRemoveAssociationMixin }
 
 interface VoucherAttributes extends BaseModelAttributes {
   name: string;
+  branchId: number;
   type: string;
   dateStart: Date;
   dateEnd: Date;
@@ -24,6 +25,7 @@ export default class Vouchers
 {
   public id!: number;
   public name!: string;
+  public branchId!: number;
   public type!: string;
   public dateStart!: Date;
   public dateEnd!: Date;
@@ -44,6 +46,10 @@ Vouchers.init(
     ...baseModelInit,
     name: {
       type: new DataTypes.STRING(255),
+      allowNull: false,
+    },
+    branchId: {
+      type: DataTypes.INTEGER(),
       allowNull: false,
     },
     type: {

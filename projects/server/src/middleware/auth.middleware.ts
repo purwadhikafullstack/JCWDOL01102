@@ -11,6 +11,7 @@ interface ISpecifiedRoute {
 export default class AuthMiddleware {
   public async checkAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      console.log(req.originalUrl);
       const bypasAuth = ['/api/common', '/api/auth'];
       for (const whitelist of bypasAuth) {
         if (req.path.startsWith(whitelist)) {
@@ -30,13 +31,21 @@ export default class AuthMiddleware {
           method: 'GET',
           route: /^\/api\/document\/[a-f0-9-]+$/i,
         },
+        {
+          method: 'GET',
+          route: /^\/api\/branches\?latitude=-?\d+(\.\d+)?&longitude=-?\d+(\.\d+)?$/,
+        },
+        {
+          method: 'GET',
+          route: /^\/api\/category\?limit=\d+&branchId=\d+$/,
+        },
       ];
 
       const isSpecifiedRoute = specifiedRoutes.some(
         (route) =>
           route.method.toUpperCase() === req.method.toUpperCase() &&
           route.method === req.method &&
-          route.route.test(req.path)
+          route.route.test(req.originalUrl)
       );
 
       if (isSpecifiedRoute) {

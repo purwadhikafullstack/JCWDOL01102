@@ -66,6 +66,7 @@ export default class PromotionController {
       const promotions = await this.promotionService.page(
         page,
         limit,
+        req.user.branchId,
         sortBy,
         !filter?.[0] ? '' : filter[0],
         !filter?.[1] ? '' : filter[1],

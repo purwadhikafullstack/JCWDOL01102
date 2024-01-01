@@ -87,6 +87,7 @@ export default class VoucherController {
       const vouchers = await this.voucherService.page(
         page,
         limit,
+        req.user.branchId,
         sortBy,
         !filter?.[0] ? '' : filter[0],
         !filter?.[1] ? '' : filter[1],

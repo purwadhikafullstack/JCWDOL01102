@@ -4,9 +4,9 @@ import Database from '../../config/db';
 const databaseInstance = Database.database;
 
 interface SearchCondition {
-  keyValue: string;
+  keyValue: any;
   operator: symbol;
-  keySearch: string;
+  keySearch: string | number;
   keyColumn?: string;
 }
 
