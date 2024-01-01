@@ -42,7 +42,15 @@ export default class PromotionService {
       throw new Error(`Error Promotion Voucher: ${error.message}`);
     }
   }
-  async page(page: number, limit: number, sortBy?: string, filterType?: string, filterBy?: string, key?: string) {
+  async page(
+    page: number,
+    limit: number,
+    branch_id: number,
+    sortBy?: string,
+    filterType?: string,
+    filterBy?: string,
+    key?: string
+  ) {
     try {
       const search = [
         {
@@ -50,6 +58,12 @@ export default class PromotionService {
           keyValue: key!,
           operator: Op.like,
           keyColumn: 'name',
+        },
+        {
+          keySearch: 'branchId',
+          keyValue: Number(branch_id!),
+          operator: Op.eq,
+          keyColumn: 'branchId',
         },
       ];
       if (filterType === 'type') {

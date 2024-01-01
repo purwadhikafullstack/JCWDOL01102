@@ -16,6 +16,7 @@ export default class VoucherService {
     this.productService = new ProductService();
   }
   async create(input: VoucherCreationAttributes) {
+    console.log(input);
     try {
       const voucher = await Vouchers.create(input);
       return voucher;
@@ -132,7 +133,15 @@ export default class VoucherService {
       throw new Error(`Error Deleting Voucher: ${error.message}`);
     }
   }
-  async page(page: number, limit: number, sortBy?: string, filterType?: string, filterBy?: string, key?: string) {
+  async page(
+    page: number,
+    limit: number,
+    branch_id: number,
+    sortBy?: string,
+    filterType?: string,
+    filterBy?: string,
+    key?: string
+  ) {
     try {
       const search = [
         {
@@ -140,6 +149,12 @@ export default class VoucherService {
           keyValue: key!,
           operator: Op.like,
           keyColumn: 'name',
+        },
+        {
+          keySearch: 'branchId',
+          keyValue: Number(branch_id!),
+          operator: Op.eq,
+          keyColumn: 'branchId',
         },
       ];
       if (filterType === 'type') {
