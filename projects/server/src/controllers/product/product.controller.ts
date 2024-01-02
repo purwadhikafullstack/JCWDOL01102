@@ -34,7 +34,7 @@ export default class ProductController {
   async getAllProductByBranch(req: Request, res: Response<IResponse<Product[]>>, next: NextFunction) {
     if (req.query.page) return next();
     try {
-      const products = await this.productService.getByBranch(req.user.branchId);
+      const products = await this.productService.getByBranchNoFilter(req.user.branchId);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: 'Get product by branch success',

@@ -14,6 +14,7 @@ import VoucherRouter from './routes/voucher/voucher.route';
 import MainRouter from './routes';
 import { OrderRouter } from './routes/order/order.route';
 import { ExternalRouter } from './routes/external/external.route';
+import AuthRoute from './routes/auth/auth.route';
 
 export class Routes {
   configRouter: express.Router;
@@ -31,6 +32,7 @@ export class Routes {
   commonRouter: express.Router;
   orderRouter: express.Router;
   externalRouter: express.Router;
+  authRouter: express.Router;
 
   constructor(expressInstance: express.Express) {
     this.router = new MainRouter().router;
@@ -48,6 +50,7 @@ export class Routes {
     this.configRouter = new ConfigRouter().router;
     this.orderRouter = new OrderRouter().router;
     this.externalRouter = new ExternalRouter().router;
+    this.authRouter = new AuthRoute().router;
     this.routesSetup(expressInstance);
   }
 
@@ -67,5 +70,6 @@ export class Routes {
     expressInstance.use('/api/promotions', this.promotionRouter);
     expressInstance.use('/api/common', this.commonRouter);
     expressInstance.use('/api/order', this.orderRouter);
+    expressInstance.use('/api/auth', this.authRouter);
   }
 }

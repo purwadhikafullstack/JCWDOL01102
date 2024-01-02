@@ -4,6 +4,7 @@ import { HttpStatusCode } from 'axios';
 import { ProcessError } from '../../helper/Error/errorHandler';
 import { IResponse } from '../interface';
 import { VoucherCreationAttributes } from '../../database/models/voucher.model';
+import { IGetProductVoucherResponse } from '../../service/voucher/interfaces/interfaces';
 ///<reference path="./custom.d.ts" />
 
 export default class VoucherController {
@@ -14,12 +15,29 @@ export default class VoucherController {
 
   async create(req: Request, res: Response<IResponse<VoucherCreationAttributes>>) {
     try {
-      const { productId } = req.query;
-      const voucher = await this.voucherService.create(Number(productId), req.user.branchId, req.body);
+      const voucher = await this.voucherService.create(req.body);
       res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Voucher has been created successfully',
         data: voucher,
+      });
+    } catch (e) {
+      ProcessError(e, res);
+    }
+  }
+
+  async getProductVoucher(req: Request, res: Response<IResponse<IGetProductVoucherResponse>>) {
+    try {
+      const { voucherId, key } = req.query;
+      const productHasVouchers = await this.voucherService.getPoductVoucher(
+        Number(voucherId),
+        req.user.branchId,
+        String(key)
+      );
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Product Voucher get success',
+        data: productHasVouchers,
       });
     } catch (e) {
       ProcessError(e, res);
@@ -64,13 +82,36 @@ export default class VoucherController {
       const limit = Number(req.query.limit);
       const key = req.query.key ? String(req.query.key) : undefined;
       const sortBy = req.query.sortBy ? String(req.query.sortBy) : undefined;
-      const filterBy = req.query.filterBy ? Number(req.query.filterBy) : undefined;
-      const vouchers = await this.voucherService.page(page, limit, sortBy, filterBy, key);
+      const filterString = req.query.filterBy ? String(req.query.filterBy) : undefined;
+      const filter = filterString?.split(':');
+      const vouchers = await this.voucherService.page(
+        page,
+        limit,
+        req.user.branchId,
+        sortBy,
+        !filter?.[0] ? '' : filter[0],
+        !filter?.[1] ? '' : filter[1],
+        key
+      );
 
       return res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
         message: 'Pagination success',
         data: vouchers,
+      });
+    } catch (e) {
+      ProcessError(e, res);
+    }
+  }
+
+  async handleProductVoucherPost(req: Request, res: Response<IResponse<VoucherCreationAttributes>>) {
+    try {
+      const { voucherId } = req.query;
+      const input = (req.body.data as string[]).map((val) => Number(val));
+      await this.voucherService.handleProductVoucherPost(Number(voucherId), input);
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Poduct Voucher handle success',
       });
     } catch (e) {
       ProcessError(e, res);

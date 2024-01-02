@@ -42,29 +42,61 @@ export default class PromotionService {
       throw new Error(`Error Promotion Voucher: ${error.message}`);
     }
   }
-  async page(page: number, limit: number, sortBy?: string, filterBy?: number, key?: string) {
+  async page(
+    page: number,
+    limit: number,
+    branch_id: number,
+    sortBy?: string,
+    filterType?: string,
+    filterBy?: string,
+    key?: string
+  ) {
     try {
-      Promotions.paginate({
+      const search = [
+        {
+          keySearch: 'name',
+          keyValue: key!,
+          operator: Op.like,
+          keyColumn: 'name',
+        },
+        {
+          keySearch: 'branchId',
+          keyValue: Number(branch_id!),
+          operator: Op.eq,
+          keyColumn: 'branchId',
+        },
+      ];
+      if (filterType === 'type') {
+        search.push({
+          keySearch: 'type',
+          keyValue: filterBy!,
+          operator: Op.like,
+          keyColumn: 'type',
+        });
+      }
+      const promotions = await Promotions.paginate({
         page,
         limit,
-        searchConditions: [
-          {
-            keySearch: 'name',
-            keyValue: key!,
-            operator: Op.like,
-            keyColumn: 'name',
-          },
-        ],
+        searchConditions: search,
+        sortOptions: sortBy ? { key: 'name', order: sortBy } : undefined,
+        symbolCondition:
+          filterType === 'status'
+            ? {
+                [filterBy === 'active' ? Op.and : Op.or]: [
+                  { dateStart: { [filterBy === 'active' ? Op.lte : Op.gt]: new Date() } },
+                  { dateEnd: { [filterBy === 'active' ? Op.gte : Op.lt]: new Date() } },
+                ],
+              }
+            : undefined,
         includeConditions: [
           {
             model: Product,
+            attributes: ['name'],
             as: 'product',
-            attributes: ['name', 'id'],
-            where: filterBy ? { id: filterBy } : undefined,
           },
         ],
-        sortOptions: sortBy ? { key: 'name', order: sortBy } : undefined,
       });
+      return promotions;
     } catch (e: any) {
       throw new Error(`Promotion Paginate Error : ${e.message}`);
     }

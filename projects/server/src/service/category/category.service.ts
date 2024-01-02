@@ -57,6 +57,21 @@ export class CategoryService {
     }
   }
 
+  async findAllWithLimit(limit: number, branchId: number) {
+    try {
+      const categories = await Category.findAll({
+        limit: limit,
+        order: [['name', 'DESC']],
+        where: {
+          branchId,
+        },
+      });
+      return categories;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async deleteById(id: number, branchId: number): Promise<Category> {
     try {
       const category = await Category.findOne({

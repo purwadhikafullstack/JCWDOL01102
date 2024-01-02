@@ -1,4 +1,4 @@
-import { UserCreationAttributes } from '../database/models/user.model';
+import { IUserLoginAttributes } from '../service/users/interfaces/interfaces';
 
 interface IMeta {
   page: number;
@@ -30,7 +30,7 @@ export interface ICheckEmail {
 }
 
 export interface ILoginResponse {
-  user: Partial<UserCreationAttributes>;
+  user: Partial<IUserLoginAttributes>;
   token: string;
 }
 

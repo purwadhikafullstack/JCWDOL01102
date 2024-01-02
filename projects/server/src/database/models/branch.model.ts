@@ -1,5 +1,6 @@
 import { DataTypes, Optional } from 'sequelize';
 import BaseModel, { BaseModelAttributes, baseModelConfig, baseModelInit } from './base.model';
+import Product from './products.model';
 
 // Branch Interface
 export interface BranchAttributes extends BaseModelAttributes {
@@ -44,5 +45,16 @@ Branch.init(
     tableName: 'branches',
   }
 );
+
+Branch.hasMany(Product, {
+  sourceKey: 'id',
+  foreignKey: 'branchId',
+  as: 'product',
+});
+
+Product.belongsTo(Branch, {
+  foreignKey: 'branchId',
+  as: 'branch',
+});
 
 export default Branch;

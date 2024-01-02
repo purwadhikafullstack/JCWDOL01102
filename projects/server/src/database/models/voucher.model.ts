@@ -6,12 +6,14 @@ import { BelongsToManyAddAssociationMixin, BelongsToManyRemoveAssociationMixin }
 
 interface VoucherAttributes extends BaseModelAttributes {
   name: string;
+  branchId: number;
   type: string;
   dateStart: Date;
   dateEnd: Date;
   value: number;
   valueType: string;
   minimumPrice: number;
+  status: string;
 }
 
 export interface VoucherCreationAttributes extends Optional<VoucherAttributes, 'id'> {}
@@ -23,12 +25,14 @@ export default class Vouchers
 {
   public id!: number;
   public name!: string;
+  public branchId!: number;
   public type!: string;
   public dateStart!: Date;
   public dateEnd!: Date;
   public value!: number;
   public valueType!: string;
   public minimumPrice!: number;
+  public status!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
   public readonly deletedAt!: Date;
@@ -37,28 +41,15 @@ export default class Vouchers
   declare removeProduct: BelongsToManyRemoveAssociationMixin<Product, Product['id']>;
 }
 
-Vouchers.belongsToMany(Product, {
-  through: ProductHasVouchers,
-  as: 'product',
-  foreignKey: 'productId',
-  sourceKey: 'id',
-  otherKey: 'voucherId',
-  timestamps: true,
-});
-Product.belongsToMany(Vouchers, {
-  through: ProductHasVouchers,
-  as: 'voucher',
-  foreignKey: 'voucherId',
-  sourceKey: 'id',
-  otherKey: 'productId',
-  timestamps: true,
-});
-
 Vouchers.init(
   {
     ...baseModelInit,
     name: {
       type: new DataTypes.STRING(255),
+      allowNull: false,
+    },
+    branchId: {
+      type: DataTypes.INTEGER(),
       allowNull: false,
     },
     type: {
@@ -85,6 +76,28 @@ Vouchers.init(
       type: DataTypes.INTEGER(),
       allowNull: true,
     },
+    status: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const now = new Date();
+        if (now >= new Date(this.dateStart) && now <= new Date(this.dateEnd)) {
+          return 'Active';
+        } else {
+          return 'Inactive';
+        }
+      },
+    },
   },
   { ...baseModelConfig, modelName: 'vouchers', tableName: 'vouchers' }
 );
+
+Vouchers.hasMany(ProductHasVouchers, {
+  sourceKey: 'id',
+  foreignKey: 'voucherId',
+  as: 'productHasVoucher',
+});
+
+ProductHasVouchers.belongsTo(Vouchers, {
+  foreignKey: 'voucherId',
+  as: 'voucher',
+});
