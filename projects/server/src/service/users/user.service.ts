@@ -69,8 +69,18 @@ export default class UserService {
     }
   }
 
+  async updateByVerifyToken(verifyToken: string, input: Partial<UserAttributes>): Promise<Users> {
+    try {
+      const user = await Users.update(input, { where: { verifyToken } });
+      if (!user) throw new NotFoundException('Users not found', {});
+      const result = await this.findOne({ verifyToken });
+      return result;
+    } catch (error: any) {
+      throw error;
+    }
+  }
+
   async updateByEmail(email: string, input: Partial<UserCreationAttributes>): Promise<Users> {
-    // eslint-disable-next-line no-useless-catch
     try {
       const user = await Users.update(input, { where: { email } });
       if (!user) throw new NotFoundException('Users not found', {});

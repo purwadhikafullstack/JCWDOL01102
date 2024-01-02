@@ -18,6 +18,9 @@ export default class AuthMiddleware {
           return next();
         }
       }
+      if (req.path === '/' || req.path === '/api') {
+        return next();
+      }
       const specifiedRoutes: ISpecifiedRoute[] = [
         {
           method: 'GET',

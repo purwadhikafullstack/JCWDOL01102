@@ -6,12 +6,15 @@ import Product from '../../database/models/products.model';
 import { ProcessError } from '../../helper/Error/errorHandler';
 import ProductService from '../../service/products/product.service';
 import { IResponse } from '../interface';
+import { OrderProductService } from '../../service/products/orderProduct.service';
 
 export default class ProductController {
   productService: ProductService;
+  orderProductService: OrderProductService;
 
   constructor() {
     this.productService = new ProductService();
+    this.orderProductService = new OrderProductService();
   }
 
   async createProduct(req: Request, res: Response<IResponse<Product>>) {
@@ -135,6 +138,22 @@ export default class ProductController {
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,
         data: product,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async getProductMultiple(req: Request, res: Response<IResponse<Product[]>>) {
+    // productid is ?productid=1,2,3,4,5
+    try {
+      const { productId } = req.query;
+
+      const products = await this.orderProductService.getMultipleProduct(productId as string);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: products,
       });
     } catch (error) {
       ProcessError(error, res);

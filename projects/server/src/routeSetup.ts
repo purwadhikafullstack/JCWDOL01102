@@ -12,6 +12,8 @@ import PromotionRouter from './routes/promotion/promotion.route';
 import userRouter from './routes/user/user.route';
 import VoucherRouter from './routes/voucher/voucher.route';
 import MainRouter from './routes';
+import { OrderRouter } from './routes/order/order.route';
+import { ExternalRouter } from './routes/external/external.route';
 import AuthRoute from './routes/auth/auth.route';
 
 export class Routes {
@@ -28,6 +30,8 @@ export class Routes {
   voucherRouter: express.Router;
   promotionRouter: express.Router;
   commonRouter: express.Router;
+  orderRouter: express.Router;
+  externalRouter: express.Router;
   authRouter: express.Router;
 
   constructor(expressInstance: express.Express) {
@@ -44,11 +48,14 @@ export class Routes {
     this.promotionRouter = new PromotionRouter().router;
     this.commonRouter = new CommonRouter().router;
     this.configRouter = new ConfigRouter().router;
+    this.orderRouter = new OrderRouter().router;
+    this.externalRouter = new ExternalRouter().router;
     this.authRouter = new AuthRoute().router;
     this.routesSetup(expressInstance);
   }
 
   routesSetup(expressInstance: express.Express) {
+    expressInstance.use('/api/external', this.externalRouter);
     expressInstance.use(this.authMiddleware.checkAuth);
     expressInstance.use('/', this.router);
     expressInstance.use('/api/config', this.configRouter);
@@ -62,6 +69,7 @@ export class Routes {
     expressInstance.use('/api/vouchers', this.voucherRouter);
     expressInstance.use('/api/promotions', this.promotionRouter);
     expressInstance.use('/api/common', this.commonRouter);
+    expressInstance.use('/api/order', this.orderRouter);
     expressInstance.use('/api/auth', this.authRouter);
   }
 }

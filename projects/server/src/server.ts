@@ -8,6 +8,7 @@ import expressListEndpoints from 'express-list-endpoints';
 import helmet from 'helmet';
 import { messages } from './config/message';
 import { Routes } from './routeSetup';
+import { CronJob } from './cronjob/cronjob';
 
 const Reset = '\x1b[0m';
 // const FgRed = '\x1b[31m';
@@ -25,6 +26,7 @@ export default class Server {
     this.routes = new Routes(this.expressInstance);
     this.routesSetup();
     this.printRegisteredRoutes();
+    new CronJob();
   }
 
   private middlewareSetup() {
@@ -51,10 +53,10 @@ export default class Server {
     });
   }
   private printRegisteredRoutes() {
-    console.log(`\n`);
+    console.info(`\n`);
 
     function printLog(method: string, path: string) {
-      console.log(`${FgYellow}Registered route: ${FgGreen}${method} ${path}` + Reset);
+      console.info(`${FgYellow}Registered route: ${FgGreen}${method} ${path}` + Reset);
     }
     const routes = expressListEndpoints(this.expressInstance);
     routes.forEach((route: any) => {
