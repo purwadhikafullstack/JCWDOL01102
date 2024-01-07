@@ -1,5 +1,5 @@
 /* eslint-disable no-useless-catch */
-import { Op } from 'sequelize';
+import { Includeable, Op } from 'sequelize';
 import { sortOptions } from '../../database/models/base.model';
 import Branch from '../../database/models/branch.model';
 import Category from '../../database/models/category.model';
@@ -46,7 +46,15 @@ export default class ProductService {
       throw error;
     }
   }
-  async page(page: number, limit: number, branchId: number, data: any, sortOptions?: sortOptions) {
+
+  async page(
+    page: number,
+    limit: number,
+    branchId: number,
+    data: any,
+    sortOptions?: sortOptions,
+    includeConditions?: Includeable[]
+  ) {
     try {
       const products = await Product.paginate({
         page,
@@ -72,6 +80,7 @@ export default class ProductService {
           },
         ],
         sortOptions,
+        includeConditions,
       });
       return {
         ...products,

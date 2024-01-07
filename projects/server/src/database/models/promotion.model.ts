@@ -11,6 +11,7 @@ interface PromotionAttributes extends BaseModelAttributes {
   value: number;
   valueType: string;
   productId: number;
+  status: string;
 }
 
 export interface PromotionCreationAttributes extends Optional<PromotionAttributes, 'id'> {}
@@ -29,6 +30,7 @@ export default class Promotions
   public value!: number;
   public valueType!: string;
   public productId!: number;
+  public status!: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
   public readonly deletedAt!: Date;
@@ -68,6 +70,17 @@ Promotions.init(
     valueType: {
       type: new DataTypes.STRING(255),
       allowNull: true,
+    },
+    status: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const now = new Date();
+        if (now >= new Date(this.dateStart) && now <= new Date(this.dateEnd)) {
+          return 'Active';
+        } else {
+          return 'Inactive';
+        }
+      },
     },
   },
   { ...baseModelConfig, modelName: 'promotions', tableName: 'promotions' }

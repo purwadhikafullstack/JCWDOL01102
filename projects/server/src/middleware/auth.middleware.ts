@@ -12,7 +12,7 @@ export default class AuthMiddleware {
   public async checkAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       console.log(req.originalUrl);
-      const bypasAuth = ['/api/common', '/api/auth'];
+      const bypasAuth = ['/api/common', '/api/auth', '/api/store'];
       for (const whitelist of bypasAuth) {
         if (req.path.startsWith(whitelist)) {
           return next();
@@ -41,6 +41,10 @@ export default class AuthMiddleware {
         {
           method: 'GET',
           route: /^\/api\/category\?limit=\d+&branchId=\d+$/,
+        },
+        {
+          method: 'GET',
+          route: /^\/api\/product\/landing-page/,
         },
       ];
 

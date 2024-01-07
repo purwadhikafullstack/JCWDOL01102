@@ -15,6 +15,7 @@ import MainRouter from './routes';
 import { OrderRouter } from './routes/order/order.route';
 import { ExternalRouter } from './routes/external/external.route';
 import AuthRoute from './routes/auth/auth.route';
+import StoreRouter from './routes/store/store.route';
 
 export class Routes {
   configRouter: express.Router;
@@ -33,6 +34,7 @@ export class Routes {
   orderRouter: express.Router;
   externalRouter: express.Router;
   authRouter: express.Router;
+  storeRouter: express.Router;
 
   constructor(expressInstance: express.Express) {
     this.router = new MainRouter().router;
@@ -51,6 +53,7 @@ export class Routes {
     this.orderRouter = new OrderRouter().router;
     this.externalRouter = new ExternalRouter().router;
     this.authRouter = new AuthRoute().router;
+    this.storeRouter = new StoreRouter().router;
     this.routesSetup(expressInstance);
   }
 
@@ -71,5 +74,6 @@ export class Routes {
     expressInstance.use('/api/common', this.commonRouter);
     expressInstance.use('/api/order', this.orderRouter);
     expressInstance.use('/api/auth', this.authRouter);
+    expressInstance.use('/api/store', this.storeRouter);
   }
 }

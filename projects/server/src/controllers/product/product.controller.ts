@@ -7,6 +7,9 @@ import { ProcessError } from '../../helper/Error/errorHandler';
 import ProductService from '../../service/products/product.service';
 import { IResponse } from '../interface';
 import { OrderProductService } from '../../service/products/orderProduct.service';
+import { Includeable } from 'sequelize';
+import Promotions from '../../database/models/promotion.model';
+import { Op } from 'sequelize';
 
 export default class ProductController {
   productService: ProductService;
@@ -51,6 +54,7 @@ export default class ProductController {
         key: req.query.sortBy as string,
         order: req.query.order as string,
       };
+
       const products = await this.productService.page(
         Number(page),
         Number(limit),
@@ -68,6 +72,47 @@ export default class ProductController {
     }
   }
 
+  async landingPagePagination(req: Request, res: Response<IResponse<any>>) {
+    try {
+      const { page, limit } = req.query;
+      const sortOption: sortOptions = {
+        key: req.query.sortBy as string,
+        order: req.query.order as string,
+      };
+      let includeOptions: Includeable[] | undefined = undefined;
+      if (req.query.includePromotion === 'true') {
+        includeOptions = [
+          {
+            model: Promotions,
+            as: 'promotion',
+            order: [['id', 'DESC']],
+            limit: 1,
+            where: {
+              [Op.and]: {
+                dateStart: { [Op.lte]: new Date() },
+                dateEnd: { [Op.gte]: new Date() },
+              },
+            },
+          },
+        ];
+      }
+      const products = await this.productService.page(
+        Number(page),
+        Number(limit),
+        Number(req.query.branchId),
+        req.query,
+        sortOption,
+        includeOptions
+      );
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+        data: products,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
   async updateProduct(req: Request, res: Response<IResponse<any>>) {
     try {
       const { id } = req.params;
