@@ -58,6 +58,21 @@ export default class StoreService {
     }
   }
 
+  async findAllCategoriesWithLimit(limit: number, branchId: number) {
+    try {
+      const categories = await Category.findAll({
+        limit: limit,
+        order: [['name', 'DESC']],
+        where: {
+          branchId,
+        },
+      });
+      return categories;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async categories(branchId: number) {
     try {
       const categories = await Category.findAll({

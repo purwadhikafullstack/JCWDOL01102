@@ -15,9 +15,6 @@ export default class ProductRouter {
   }
 
   private routes() {
-    this.router.get('/landing-page', (req: Request, res: Response) =>
-      this.productController.landingPagePagination(req, res)
-    );
     this.router.get('/search', permissionsMiddleware(['can_read_product']), (req: Request, res: Response) =>
       this.productController.getProductMultiple(req, res)
     );
