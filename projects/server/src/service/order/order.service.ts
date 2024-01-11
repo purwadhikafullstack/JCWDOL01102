@@ -72,15 +72,21 @@ export class OrderService {
           );
         })
       );
-
+      const user = await Users.findByPk(input.userId);
       await this.orderStockService.updateStockAfterPurchase(order.id, t);
-
-      const result = await this.dokupayService.paymentBcaVa({
-        invoiceNumber: invoiceNo,
-        amount: input.totalAmount,
-        email: 'scriptgalih@gmail.com',
-        name: 'Galih Setyawan',
-      });
+      let result: any;
+      switch (input.paymentCode) {
+        case 'BCA_VA':
+          result = await this.dokupayService.paymentBcaVa({
+            invoiceNumber: invoiceNo,
+            amount: input.totalAmount,
+            email: user!.email,
+            name: user!.name,
+          });
+          break;
+        default:
+          throw new BadRequestException('Payment code not found');
+      }
 
       await this.updateOrderById(
         {
