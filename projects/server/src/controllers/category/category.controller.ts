@@ -4,7 +4,7 @@ import { IResponse } from '../interface';
 import Category from '../../database/models/category.model';
 import { messages } from '../../config/message';
 import { ProcessError } from '../../helper/Error/errorHandler';
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 
 export class CategoryController {
   categoryService: CategoryService;
@@ -57,23 +57,6 @@ export class CategoryController {
   async allCategory(req: Request, res: Response<IResponse<any>>) {
     try {
       const categories = await this.categoryService.allCategory(req.user.branchId);
-      res.status(HttpStatusCode.Ok).json({
-        statusCode: HttpStatusCode.Ok,
-        message: messages.SUCCESS,
-        data: categories,
-      });
-    } catch (error) {
-      ProcessError(error, res);
-    }
-  }
-
-  async getAllWithLimit(req: Request, res: Response<IResponse<any>>, next: NextFunction) {
-    try {
-      if (!req.query.branchId || !req.query.limit) {
-        return next();
-      }
-      const { branchId, limit } = req.query;
-      const categories = await this.categoryService.findAllWithLimit(Number(limit), Number(branchId));
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: messages.SUCCESS,

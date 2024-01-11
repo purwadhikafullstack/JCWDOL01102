@@ -8,6 +8,7 @@ import ProductService from '../../service/products/product.service';
 import { IResponse } from '../interface';
 import { OrderProductService } from '../../service/products/orderProduct.service';
 
+
 export default class ProductController {
   productService: ProductService;
   orderProductService: OrderProductService;
@@ -51,6 +52,7 @@ export default class ProductController {
         key: req.query.sortBy as string,
         order: req.query.order as string,
       };
+
       const products = await this.productService.page(
         Number(page),
         Number(limit),

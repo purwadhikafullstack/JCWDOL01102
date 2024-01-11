@@ -30,4 +30,5 @@ const configConstants = {
   RAJA_ONGKIR_URL: process.env.RAJA_ONGKIR_URL ?? 'https://api.rajaongkir.com',
   RAJA_ONGKIR_KEY: process.env.RAJA_ONGKIR_KEY ?? '',
 };
+
 export default configConstants;

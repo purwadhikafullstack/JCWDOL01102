@@ -111,6 +111,7 @@ export default class DocumentService {
     if (!document) throw new NotFoundException('Document not found', {});
     const bucketName = document.bucketName;
     const pathName = document.pathName;
+    console.log(bucketName, pathName);
     const file = await this.minioService.getBuffer(bucketName, pathName);
     return file;
   }

@@ -46,7 +46,8 @@
     "nodemon": "^3.0.1",
     "sequelize-cli": "^6.6.1",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.2.2",
+    "@types/haversine": "^1.1.8"
   },
   "dependencies": {
     "@types/haversine": "^1.1.8",
@@ -83,6 +84,7 @@
     "sequelize": "^6.35.1",
     "stream-to-buffer": "^0.1.0",
     "tedious": "^16.4.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "haversine": "^1.1.1"
   }
 }

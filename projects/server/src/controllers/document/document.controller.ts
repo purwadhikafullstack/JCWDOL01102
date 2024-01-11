@@ -38,6 +38,7 @@ export default class DocumentController {
     try {
       const result = await this.documentService.getFileById(req.params.id);
       res.setHeader('Content-Type', result.mime.mime);
+      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
       res.status(HttpStatusCode.Ok);
       res.send(result.objectData);
     } catch (error) {
