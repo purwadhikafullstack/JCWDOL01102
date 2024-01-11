@@ -19,7 +19,10 @@ export default class CartRouter {
     this.router.post(
       '/',
       permissionsMiddleware(['can_update_cart', 'can_delete_cart', 'can_create_cart']),
-      (req: Request, res: Response) => this.cartController.findCart(req, res)
+      (req: Request, res: Response) => this.cartController.manageCart(req, res)
+    );
+    this.router.delete('/', permissionsMiddleware(['can_delete_cart']), (req: Request, res: Response) =>
+      this.cartController.clearCart(req, res)
     );
   }
 }

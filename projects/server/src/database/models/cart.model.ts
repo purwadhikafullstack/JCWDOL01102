@@ -43,7 +43,7 @@ Cart.init(
   },
   {
     ...baseModelConfig,
-    tableName: 'cart',
+    tableName: 'carts',
   }
 );
 
