@@ -8,15 +8,17 @@ interface ISpecifiedRoute {
   route: RegExp;
   method: string;
 }
-
 export default class AuthMiddleware {
   public async checkAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const bypasAuth = ['/api/users/email', '/api/users/login', '/api/users/verify'];
+      const bypasAuth = ['/api/common', '/api/auth', '/api/store'];
       for (const whitelist of bypasAuth) {
         if (req.path.startsWith(whitelist)) {
           return next();
         }
+      }
+      if (req.path === '/' || req.path === '/api') {
+        return next();
       }
       const specifiedRoutes: ISpecifiedRoute[] = [
         {
@@ -25,15 +27,27 @@ export default class AuthMiddleware {
         },
         {
           method: 'POST',
-          route: /^\/api\/users\/login/,
-        },
-        {
-          method: 'PATCH',
-          route: /^\/api\/users\/verify/,
+          route: /^\/api\/users(?:\?.*)?$/,
         },
         {
           method: 'GET',
           route: /^\/api\/document\/[a-f0-9-]+$/i,
+        },
+        {
+          method: 'GET',
+          route: /^\/api\/branches\?latitude=-?\d+(\.\d+)?&longitude=-?\d+(\.\d+)?$/,
+        },
+        {
+          method: 'GET',
+          route: /^\/api\/category\?limit=\d+&branchId=\d+$/,
+        },
+        {
+          method: 'GET',
+          route: /^\/api\/product\/landing-page/,
+        },
+        {
+          method: 'PUT',
+          route: /^\/api\/users\/[a-f0-9-]+$/i,
         },
       ];
 
@@ -41,7 +55,7 @@ export default class AuthMiddleware {
         (route) =>
           route.method.toUpperCase() === req.method.toUpperCase() &&
           route.method === req.method &&
-          route.route.test(req.path)
+          route.route.test(req.originalUrl)
       );
 
       if (isSpecifiedRoute) {

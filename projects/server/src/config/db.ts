@@ -44,7 +44,7 @@ class Database {
     this.database
       .authenticate()
       .then(() => {
-        console.log('Connection database has been established successfully.');
+        console.info('Connection database has been established successfully.');
       })
       .catch((err) => {
         console.error('Unable to connect to the database:', err);

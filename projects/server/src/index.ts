@@ -29,7 +29,7 @@ server.on('error', (error: NodeJS.ErrnoException, res: Response) => {
 server.on('listening', onListening);
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 server.on('request', (req: Request, res) => {
-  console.log(
+  console.info(
     JSON.stringify({
       method: req.method,
       url: req.url,
@@ -73,5 +73,5 @@ function onError(error: NodeJS.ErrnoException): void {
 function onListening(): void {
   const addr = <AddressInfo>server.address();
   const bind = typeof addr === 'string' ? `pipe ${addr}` : `Listetning on port ${addr.port}`;
-  console.log(bind);
+  console.info(bind);
 }

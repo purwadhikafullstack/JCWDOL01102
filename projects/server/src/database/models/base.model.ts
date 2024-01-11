@@ -1,17 +1,17 @@
-import { DataTypes, FindAttributeOptions, Includeable, Model, Op, Optional } from 'sequelize';
+import { DataTypes, FindAttributeOptions, Includeable, Model, Op, Optional, WhereOptions } from 'sequelize';
 import Database from '../../config/db';
 
 const databaseInstance = Database.database;
 
 interface SearchCondition {
-  keyValue: string;
+  keyValue: any;
   operator: symbol;
-  keySearch: string;
+  keySearch: string | number;
   keyColumn?: string;
 }
 
 export interface BaseModelAttributes {
-  id?: number;
+  id: number;
   createdAt?: Date | null;
   updatedAt?: Date | null;
   deletedAt?: Date | null;
@@ -28,6 +28,7 @@ interface IPaginate {
   sortOptions?: sortOptions;
   includeConditions?: Includeable[];
   attributes?: FindAttributeOptions;
+  symbolCondition?: WhereOptions;
 }
 
 class BaseModel<
@@ -48,20 +49,19 @@ class BaseModel<
   }> {
     const offset = (input.page - 1) * input.limit;
 
-    const whereConditions: { [key: string]: any } = {};
+    let whereConditions: WhereOptions = {};
 
-    // Apply custom search conditions
     for (const condition of input.searchConditions) {
-      //   if (condition.operator === Op.gte || condition.operator === Op.lte) {
       whereConditions[condition.keyColumn ?? condition.keySearch] = {
         [condition.keyValue ? condition.operator : Op.substring]: condition.keyValue,
-        // };
       };
     }
     whereConditions['deletedAt'] = {
       [Op.eq]: null,
     };
-
+    if (input.symbolCondition) {
+      whereConditions = { ...whereConditions, ...input.symbolCondition };
+    }
     // Apply sorting
     const sortKey = input.sortOptions?.key ?? 'id';
     const sortOrder = input.sortOptions?.order ?? 'ASC';

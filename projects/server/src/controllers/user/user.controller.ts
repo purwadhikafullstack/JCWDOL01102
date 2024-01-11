@@ -5,13 +5,11 @@ import { ProcessError } from '../../helper/Error/errorHandler';
 import { BadRequestException } from '../../helper/Error/BadRequestException/BadRequestException';
 import Users, { UserAttributes, UserCreationAttributes } from '../../database/models/user.model';
 import { NextFunction, Request, Response } from 'express';
-import { ICheckEmail, ILoginResponse, IMailerResponse, IResponse, IUserBodyReq } from '../interface';
+import { ICheckEmail, IResponse, IUserBodyReq } from '../interface';
 import { messages } from '../../config/message';
 import generateReferral from '../../helper/function/generatReferral';
 import bcrypt from 'bcrypt';
 import { NotFoundException } from '../../helper/Error/NotFound/NotFoundException';
-import MailerService from '../../service/nodemailer.service';
-import SMTPTransport from 'nodemailer/lib/smtp-transport';
 import { v4 as uuidV4 } from 'uuid';
 import { Op } from 'sequelize';
 
@@ -125,7 +123,7 @@ export class UserController {
       const key = req.query.key ? String(req.query.key) : undefined;
       const sortBy = req.query.sortBy ? String(req.query.sortBy) : undefined;
       const filterBy = req.query.filterBy ? Number(req.query.filterBy) : undefined;
-      const users = await this.userServices.page(page, limit, 2, sortBy, filterBy, key);
+      const users = await this.userServices.page(page, limit, sortBy, filterBy, key);
 
       return res.status(HttpStatusCode.Ok).send({
         statusCode: HttpStatusCode.Ok,
@@ -170,74 +168,15 @@ export class UserController {
       ProcessError(err, res);
     }
   }
-  async sendEmail(req: Request, res: Response<IResponse<IMailerResponse>>) {
-    try {
-      const email = req.query.email as string;
-      const name = req.query.name as string;
-      const verifyToken = req.query.verifyToken as string;
-      const emailService = new MailerService();
-      const info: SMTPTransport.SentMessageInfo = await emailService.sendEmail(verifyToken, email, name);
-      res.status(HttpStatusCode.Ok).send({
-        statusCode: HttpStatusCode.Ok,
-        message: 'Email was successfully sent',
-        data: {
-          to: email,
-          message: info.response,
-          status: 'sent',
-        },
-      });
-    } catch (e: any) {
-      ProcessError(e, res);
-    }
-  }
-  async verify(req: Request, res: Response<IResponse<any>>) {
-    try {
-      const verifyToken = req.body.verifyToken;
-      const result = await this.userServices.updateByVerifyToken(verifyToken, { isVerified: true });
 
-      res.status(HttpStatusCode.Ok).send({
-        statusCode: HttpStatusCode.Ok,
-        message: messages.SUCCESS,
-        data: result ?? {},
-      });
-    } catch (err) {
-      ProcessError(err, res);
-    }
-  }
-  async Login(req: Request, res: Response<IResponse<ILoginResponse>>) {
-    try {
-      const token = await this.userServices.login(req.body);
-      if (!token) {
-        return res.status(HttpStatusCode.NotFound).send({
-          statusCode: HttpStatusCode.NotFound,
-          message: 'Username or Password is incorrect',
-        });
-      }
-      res.status(HttpStatusCode.Ok).send({
-        statusCode: HttpStatusCode.Ok,
-        message: 'Login successfull',
-        data: {
-          email: req.body.email,
-          token: token,
-        },
-      });
-    } catch (e) {
-      if (e instanceof NotFoundException) {
-        return res.status(HttpStatusCode.Unauthorized).send({
-          statusCode: HttpStatusCode.Unauthorized,
-          message: 'Email or Password is incorrect',
-        });
-      }
-      ProcessError(e, res);
-    }
-  }
-  async delete(req: Request, res: Response) {
+  async delete(req: Request, res: Response<IResponse<UserAttributes>>) {
     try {
       const id = Number(req.params.id);
       if (!id) throw new BadRequestException('Invalid id', {});
-      const affectedRows = await this.userServices.deleteById(id);
-      res.status(HttpStatusCode.Ok).json({
-        affectedRows: affectedRows || 0,
+      await this.userServices.deleteById(id);
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Admin was successfully deleted',
       });
     } catch (err) {
       ProcessError(err, res);

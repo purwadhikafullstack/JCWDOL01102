@@ -1,3 +1,5 @@
+import { IUserLoginAttributes } from '../service/users/interfaces/interfaces';
+
 interface IMeta {
   page: number;
   limit: number;
@@ -28,7 +30,7 @@ export interface ICheckEmail {
 }
 
 export interface ILoginResponse {
-  email: string;
+  user: Partial<IUserLoginAttributes>;
   token: string;
 }
 
