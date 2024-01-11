@@ -6,6 +6,7 @@ import { getUniqId } from '../../helper/function/getUniqId';
 import Order from '../../database/models/order.model';
 import { IPostOrderResponse } from '../order/interface';
 import OrderStatus from '../../database/models/orderStatus.model';
+import { orderStatusConstants } from '../../config/orderConstants';
 
 interface DokuPaymentCode {
   payload: object;
@@ -138,11 +139,14 @@ export default class DokuService {
       console.log('PAYMENT SUCCESS');
       const invoiceNumber = payload.order.invoice_number;
 
-      const order = await Order.update({ status: 'paid' }, { where: { invoiceNo: invoiceNumber } });
+      const order = await Order.update(
+        { status: orderStatusConstants.payment_success.code },
+        { where: { invoiceNo: invoiceNumber } }
+      );
       const getOrder = await Order.findOne({ where: { invoiceNo: invoiceNumber } });
       await OrderStatus.create({
         orderId: getOrder?.id as number,
-        status: 'payment_success',
+        status: orderStatusConstants.payment_success.code,
       });
 
       console.log('ORDER', order);

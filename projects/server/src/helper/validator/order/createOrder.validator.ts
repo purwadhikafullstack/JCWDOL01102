@@ -1,26 +1,6 @@
 import { body } from 'express-validator';
 import validate from '../../function/expressValidator';
-// {
-//   "userId":1,
-//   "branchId":1,
-//   "products":[
-//       {
-//           "id":1,
-//           "qty":2,
-//           "price":10000
-//       }
-//   ],
-//   "courier":{
-//       "name":"Jalur Nugraha Ekakurir (JNE)",
-//       "code":"REG",
-//       "price":12000,
-//       "etd":"1-2"
-//   },
-//   "discountId":[
-//   ],
-//   "totalAmount":10000,
-//   "paymentCode":"BCA_VA"
-// }
+
 export const createOrderValidation = () =>
   validate([
     body('userId').notEmpty().isInt(),

@@ -1,5 +1,6 @@
 import { DataTypes, Optional } from 'sequelize';
 import BaseModel, { BaseModelAttributes, baseModelInit, baseModelConfig } from './base.model';
+import OrderDetail from './orderDetail.model';
 
 export interface OrderAttributes extends BaseModelAttributes {
   userId: number;
@@ -11,6 +12,9 @@ export interface OrderAttributes extends BaseModelAttributes {
   branchId: number;
   invoiceNo: string;
   howToPay?: string;
+  receivedName?: string;
+  phone?: string;
+  address?: string;
 }
 
 export interface OrderCreationAttributes extends Optional<OrderAttributes, 'id'> {}
@@ -25,6 +29,9 @@ export default class Order extends BaseModel<OrderAttributes, OrderCreationAttri
   public branchId!: number;
   public invoiceNo!: string;
   public howToPay!: string;
+  public receivedName!: string;
+  public phone!: string;
+  public address!: string;
 }
 
 Order.init(
@@ -66,9 +73,32 @@ Order.init(
       type: new DataTypes.STRING(255),
       allowNull: true,
     },
+    receivedName: {
+      type: new DataTypes.STRING(255),
+      allowNull: true,
+    },
+    phone: {
+      type: new DataTypes.STRING(255),
+      allowNull: true,
+    },
+    address: {
+      type: new DataTypes.TEXT(),
+      allowNull: true,
+    },
   },
   {
     ...baseModelConfig,
     tableName: 'orders',
   }
 );
+
+Order.hasMany(OrderDetail, {
+  as: 'order_details',
+  foreignKey: 'order_id',
+  sourceKey: 'id',
+});
+OrderDetail.belongsTo(Order, {
+  as: 'order',
+  foreignKey: 'order_id',
+  targetKey: 'id',
+});
