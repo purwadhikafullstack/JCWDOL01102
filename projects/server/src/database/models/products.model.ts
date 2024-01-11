@@ -1,6 +1,7 @@
 import { DataTypes, Optional } from 'sequelize';
 import BaseModel, { BaseModelAttributes, baseModelConfig, baseModelInit } from './base.model';
 import ProductHasVouchers from './productHasVoucher.model';
+import Documents from './document.model';
 
 export interface ProductAttributes extends BaseModelAttributes {
   categoryId: number;
@@ -77,6 +78,16 @@ Product.hasMany(ProductHasVouchers, {
 ProductHasVouchers.belongsTo(Product, {
   foreignKey: 'productId',
   as: 'product',
+});
+
+Documents.hasOne(Product, {
+  foreignKey: 'imageId',
+  sourceKey: 'id',
+});
+
+Product.belongsTo(Documents, {
+  foreignKey: 'imageId',
+  as: 'image',
 });
 
 export default Product;

@@ -1,3 +1,5 @@
+/* eslint-disable max-lines */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable max-lines-per-function */
 import { DateTime } from 'luxon';
 import { Transaction } from 'sequelize';
@@ -12,6 +14,13 @@ import { StockProductService } from '../products/stockProduct.service';
 import { IRequestOrder } from './interface';
 import { orderStatusConstants } from '../../config/orderConstants';
 import OrderStatus from '../../database/models/orderStatus.model';
+import Product from '../../database/models/products.model';
+import { Op } from 'sequelize';
+import Documents from '../../database/models/document.model';
+import { OrderStockService } from './orderStock.service';
+import Users from '../../database/models/user.model';
+import Addresses from '../../database/models/address.model';
+import { sortOrders } from './utils/sortOrder';
 interface IOrder {
   data: IRequestOrder;
   invoiceNo: string;
@@ -23,12 +32,14 @@ export class OrderService {
   paymentGatewayService: PaymentGatewayService;
   stockProductService: StockProductService;
   dokupayService: DokuService;
+  orderStockService: OrderStockService;
 
   constructor() {
     this.paymentGatewayService = new PaymentGatewayService();
     this.productService = new ProductService();
     this.stockProductService = new StockProductService();
     this.dokupayService = new DokuService();
+    this.orderStockService = new OrderStockService();
   }
   async createOrder(input: IRequestOrder) {
     const t = (await Order.sequelize?.transaction())!;
@@ -61,6 +72,8 @@ export class OrderService {
           );
         })
       );
+
+      await this.orderStockService.updateStockAfterPurchase(order.id, t);
 
       const result = await this.dokupayService.paymentBcaVa({
         invoiceNumber: invoiceNo,
@@ -125,18 +138,78 @@ export class OrderService {
   }
 
   async create(input: IOrder) {
+    const address = await Addresses.findOne({
+      where: {
+        userId: input.data.userId,
+        isDefault: true,
+      },
+    });
     const order = await Order.create(
       {
         invoiceNo: input.invoiceNo,
         branchId: input.data.branchId,
         userId: input.data.userId,
-        status: 'pending',
+        status: orderStatusConstants.created.code,
         total: input.data.totalAmount,
         paymentId: input.paymentGatewayId,
+        receivedName: address?.receiverName,
+        phone: address?.phoneNumber,
+        address: address?.address,
       },
       { transaction: input.t }
     );
 
     return order;
+  }
+  async pageOrderManagement(page: number, limit: number, branchId: number, query: any) {
+    const sortOptions = sortOrders(query.sort);
+    const orders = await Order.paginate({
+      page,
+      limit,
+      searchConditions: [
+        {
+          keySearch: 'branchId',
+          keyValue: branchId,
+          keyColumn: 'branchId',
+          operator: Op.eq,
+        },
+        {
+          keySearch: 'status',
+          keyValue: query.status,
+          keyColumn: 'status',
+          operator: Op.eq,
+        },
+        {
+          keySearch: 'invoiceNo',
+          keyValue: query.invoiceNo,
+          keyColumn: 'invoiceNo',
+          operator: Op.substring,
+        },
+      ],
+      sortOptions,
+      attributes: ['id', 'invoiceNo', 'total', 'status', 'createdAt', 'updatedAt'],
+      includeConditions: [
+        {
+          model: OrderDetail,
+          as: 'order_details',
+          attributes: ['orderId', 'productId', 'qty', 'price'],
+          include: [
+            {
+              model: Product,
+              as: 'products',
+              include: [
+                {
+                  model: Documents,
+                  as: 'image',
+                  attributes: ['uniqueId'],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    return orders;
   }
 }

@@ -6,9 +6,13 @@ import { Op } from 'sequelize';
 import Order from '../database/models/order.model';
 import OrderStatus from '../database/models/orderStatus.model';
 import { orderStatusConstants } from '../config/orderConstants';
+import { OrderStockService } from '../service/order/orderStock.service';
 
 export class CronJob {
+  orderStockService: OrderStockService;
+
   constructor() {
+    this.orderStockService = new OrderStockService();
     console.log('Cron job started');
     // Define your cron job here
     cron.schedule('0 * * * *', () => {
@@ -29,7 +33,7 @@ export class CronJob {
     try {
       const pendingOrders = await Order.findAll({
         where: {
-          status: 'pending',
+          status: orderStatusConstants.created.code,
           createdAt: {
             [Op.lte]: DateTime.now().minus({ minutes: 61 }).toJSDate(),
           },
@@ -41,16 +45,17 @@ export class CronJob {
             orderId: order.id,
             status: orderStatusConstants.payment_failed.code,
           });
+          await this.orderStockService.rollbackStockOnFailedPurchase(order.id);
         })
       );
 
       const affectedCount = await Order.update(
         {
-          status: 'expired',
+          status: orderStatusConstants.payment_failed.code,
         },
         {
           where: {
-            status: 'pending',
+            status: orderStatusConstants.created.code,
             createdAt: {
               [Op.lte]: DateTime.now().minus({ minutes: 61 }).toJSDate(),
             },

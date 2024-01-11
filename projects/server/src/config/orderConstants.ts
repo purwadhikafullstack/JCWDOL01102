@@ -27,8 +27,23 @@ export const orderStatusConstants = {
     code: 'received',
     description: 'Pesanan diterima',
   },
+  done: {
+    code: 'done',
+    description: 'Pesanan selesai',
+  },
   canceled: {
     code: 'canceled',
     description: 'Pesanan dibatalkan',
   },
 };
+
+export const orderStatusList = [
+  orderStatusConstants.created.code,
+  orderStatusConstants.payment_success.code,
+  orderStatusConstants.process.code,
+  orderStatusConstants.shipped.code,
+  orderStatusConstants.received.code,
+  orderStatusConstants.done.code,
+  orderStatusConstants.payment_failed.code,
+  orderStatusConstants.canceled.code,
+];

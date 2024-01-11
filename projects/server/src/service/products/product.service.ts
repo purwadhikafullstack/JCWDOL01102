@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 /* eslint-disable no-useless-catch */
 import { Op } from 'sequelize';
 import { sortOptions } from '../../database/models/base.model';

@@ -1,6 +1,6 @@
 import { DataTypes, Optional } from 'sequelize';
-import BaseModel, { BaseModelAttributes, baseModelInit, baseModelConfig } from './base.model';
-import Order from './order.model';
+import BaseModel, { BaseModelAttributes, baseModelConfig, baseModelInit } from './base.model';
+import Product from './products.model';
 
 export interface OrderDetailAttributes extends BaseModelAttributes {
   orderId: number;
@@ -47,8 +47,5 @@ OrderDetail.init(
   }
 );
 
-OrderDetail.belongsTo(Order, {
-  as: 'order',
-  foreignKey: 'order_id',
-  targetKey: 'id',
-});
+OrderDetail.hasOne(Product, { foreignKey: 'id', sourceKey: 'productId', as: 'products' });
+Product.belongsTo(OrderDetail, { foreignKey: 'id', targetKey: 'productId' });
