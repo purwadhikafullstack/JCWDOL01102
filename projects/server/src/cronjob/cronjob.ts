@@ -22,6 +22,10 @@ export class CronJob {
     cron.schedule('* * * * *', () => {
       this.checkOrderStatus();
     });
+
+    cron.schedule('*/1 * * * *', () => {
+      this.deliverOrder1Mnt();
+    });
   }
 
   private exampleCronJob() {
@@ -69,6 +73,43 @@ export class CronJob {
       }
     } catch (error) {
       console.log('Error checking order status: ', error);
+    }
+  }
+
+  private async deliverOrder1Mnt() {
+    const deliveredOrders = await Order.findAll({
+      where: {
+        status: orderStatusConstants.shipped.code,
+        createdAt: {
+          [Op.lte]: DateTime.now().minus({ minutes: 1 }).toJSDate(),
+        },
+      },
+    });
+    await Promise.all(
+      deliveredOrders.map(async (order) => {
+        await OrderStatus.create({
+          orderId: order.id,
+          status: orderStatusConstants.received.code,
+        });
+      })
+    );
+    const affectedCount = await Order.update(
+      {
+        status: orderStatusConstants.received.code,
+      },
+      {
+        where: {
+          status: orderStatusConstants.shipped.code,
+          createdAt: {
+            [Op.lte]: DateTime.now().minus({ minutes: 1 }).toJSDate(),
+          },
+        },
+      }
+    );
+    const invoiceList = deliveredOrders.map((order) => order.invoiceNo);
+    if (affectedCount[0] > 0) {
+      console.log('Affected rows: ', affectedCount);
+      console.log('Received orders: ', invoiceList);
     }
   }
 }
