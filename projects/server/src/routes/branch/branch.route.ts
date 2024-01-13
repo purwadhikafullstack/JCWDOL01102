@@ -13,10 +13,13 @@ export class BranchRoute {
   }
 
   private routes() {
+    this.route.get('/detail', permissionsMiddleware(['can_read_branch', 'user_access']), (req, res) =>
+      this.branchController.getBranchByUserId(req, res)
+    );
     this.route.get(
       '/',
       (req: Request, res: Response, next: NextFunction) => this.branchController.getNearestBranch(req, res, next),
-      permissionsMiddleware(['can_read_branch']),
+      permissionsMiddleware(['can_read_branch', 'branch_admin_access']),
       (req: Request, res: Response) => this.branchController.getAllBranch(req, res)
     );
   }
