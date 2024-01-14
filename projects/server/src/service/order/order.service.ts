@@ -138,27 +138,25 @@ export class OrderService {
       input.promotions.forEach((promotion) => {
         const product = _.find(input.products, (product) => product.id === promotion.productId);
         if (product) {
-          // if (promo.type === "price_cut" && promo.valueType === "percentage") {
-          //   cutPrice += item.product.price * item.qty * (promo.value! / 100);
-          // } else if (
-          //   promo.type === "price_cut" &&
-          //   promo.valueType === "fixed_price"
-          // ) {
-          //   cutPrice += item.qty * promo.value!;
-          // }
           if (promotion.type === 'price_cut') {
             if (promotion.valueType === 'percentage') {
               cutPrice += product.price * product.qty * (promotion.value / 100);
             } else if (promotion.valueType === 'fixed_price') {
               cutPrice += product.qty * promotion.value;
             }
+          } else if (promotion.type === 'buy_one_get_one') {
+            // cutPrice += product.price * (product.qty / 2);
           }
         }
       });
     }
     totalAmount -= cutPrice;
     if (totalAmount !== input.totalAmount) {
-      throw new BadRequestException('Total amount is not valid', {});
+      throw new BadRequestException('Total amount is not valid', {
+        error: 'total_amount_not_valid',
+        expected: totalAmount,
+        actual: input.totalAmount,
+      });
     }
   }
 
