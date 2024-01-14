@@ -1,12 +1,12 @@
-import { DateTime } from 'luxon';
-import * as crypto from 'crypto';
 import axios, { AxiosError } from 'axios';
+import * as crypto from 'crypto';
+import { DateTime } from 'luxon';
+import { orderStatusConstants } from '../../config/orderConstants';
+import Order from '../../database/models/order.model';
+import OrderStatus from '../../database/models/orderStatus.model';
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
 import { getUniqId } from '../../helper/function/getUniqId';
-import Order from '../../database/models/order.model';
 import { IPostOrderResponse } from '../order/interface';
-import OrderStatus from '../../database/models/orderStatus.model';
-import { orderStatusConstants } from '../../config/orderConstants';
 
 interface DokuPaymentCode {
   payload: object;
@@ -93,8 +93,8 @@ export default class DokuService {
         info3: 'on our store',
       },
       customer: {
-        name: email,
-        email: name,
+        name: name,
+        email: email,
       },
     };
     const paymentUrl = 'https://api-sandbox.doku.com/bca-virtual-account/v2/payment-code';

@@ -22,6 +22,7 @@ import Users from '../../database/models/user.model';
 import Addresses from '../../database/models/address.model';
 import { sortOrders } from './utils/sortOrder';
 import _ from 'lodash';
+import { DokuVAService } from '../doku/dokuVA.service';
 interface IOrder {
   data: IRequestOrder;
   invoiceNo: string;
@@ -34,13 +35,14 @@ export class OrderService {
   stockProductService: StockProductService;
   dokupayService: DokuService;
   orderStockService: OrderStockService;
-
+  dokuVaService: DokuVAService;
   constructor() {
     this.paymentGatewayService = new PaymentGatewayService();
     this.productService = new ProductService();
     this.stockProductService = new StockProductService();
     this.dokupayService = new DokuService();
     this.orderStockService = new OrderStockService();
+    this.dokuVaService = new DokuVAService();
   }
   async createOrder(input: IRequestOrder) {
     const t = (await Order.sequelize?.transaction())!;
@@ -91,6 +93,39 @@ export class OrderService {
             name: user!.name,
           });
           break;
+        case 'BNI_VA':
+          result = await this.dokuVaService.paymentBniVa({
+            invoiceNumber: invoiceNo,
+            amount: input.totalAmount,
+            email: user!.email,
+            name: user!.name,
+          });
+          break;
+        case 'MANDIRI_VA':
+          result = await this.dokuVaService.paymentMandiriVa({
+            invoiceNumber: invoiceNo,
+            amount: input.totalAmount,
+            email: user!.email,
+            name: user!.name,
+          });
+          break;
+        case 'BSI_VA':
+          result = await this.dokuVaService.paymentBsiVa({
+            invoiceNumber: invoiceNo,
+            amount: input.totalAmount,
+            email: user!.email,
+            name: user!.name,
+          });
+          break;
+        case 'BRI_VA':
+          result = await this.dokuVaService.paymentBriVa({
+            invoiceNumber: invoiceNo,
+            amount: input.totalAmount,
+            email: user!.email,
+            name: user!.name,
+          });
+          break;
+
         default:
           throw new BadRequestException('Payment code not found');
       }
@@ -145,7 +180,7 @@ export class OrderService {
               cutPrice += product.qty * promotion.value;
             }
           } else if (promotion.type === 'buy_one_get_one') {
-            // cutPrice += product.price * (product.qty / 2);
+            cutPrice += product.price * (product.qty / 2);
           }
         }
       });
