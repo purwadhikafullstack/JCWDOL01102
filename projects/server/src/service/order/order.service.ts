@@ -84,46 +84,28 @@ export class OrderService {
       const user = await Users.findByPk(input.userId);
       await this.orderStockService.updateStockAfterPurchase(order.id, t);
       let result: any;
+      const dataDoku = {
+        invoiceNumber: invoiceNo,
+        amount: input.totalAmount,
+        email: user!.email,
+        name: user!.name,
+      };
+
       switch (input.paymentCode) {
         case 'BCA_VA':
-          result = await this.dokupayService.paymentBcaVa({
-            invoiceNumber: invoiceNo,
-            amount: input.totalAmount,
-            email: user!.email,
-            name: user!.name,
-          });
+          result = await this.dokupayService.paymentBcaVa(dataDoku);
           break;
         case 'BNI_VA':
-          result = await this.dokuVaService.paymentBniVa({
-            invoiceNumber: invoiceNo,
-            amount: input.totalAmount,
-            email: user!.email,
-            name: user!.name,
-          });
+          result = await this.dokuVaService.paymentBniVa(dataDoku);
           break;
         case 'MANDIRI_VA':
-          result = await this.dokuVaService.paymentMandiriVa({
-            invoiceNumber: invoiceNo,
-            amount: input.totalAmount,
-            email: user!.email,
-            name: user!.name,
-          });
+          result = await this.dokuVaService.paymentMandiriVa(dataDoku);
           break;
         case 'BSI_VA':
-          result = await this.dokuVaService.paymentBsiVa({
-            invoiceNumber: invoiceNo,
-            amount: input.totalAmount,
-            email: user!.email,
-            name: user!.name,
-          });
+          result = await this.dokuVaService.paymentBsiVa(dataDoku);
           break;
         case 'BRI_VA':
-          result = await this.dokuVaService.paymentBriVa({
-            invoiceNumber: invoiceNo,
-            amount: input.totalAmount,
-            email: user!.email,
-            name: user!.name,
-          });
+          result = await this.dokuVaService.paymentBriVa(dataDoku);
           break;
 
         default:
