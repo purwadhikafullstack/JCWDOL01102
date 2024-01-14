@@ -48,6 +48,12 @@ export class OrderService {
       await Promise.all(
         input.products.map(async (product) => {
           await this.productService.getById(product.id, input.branchId);
+          const promotion = input.promotions.find((promo) => promo.productId === product.id);
+          if (promotion) {
+            if (promotion.type === 'buy_one_get_one') {
+              product.qty = product.qty * 2;
+            }
+          }
           await this.stockProductService.checkStockProduct(product.id, input.branchId, product.qty, product.price);
         })
       );
