@@ -5,6 +5,7 @@ import Product from '../../database/models/products.model';
 import Promotions from '../../database/models/promotion.model';
 import { UnprocessableEntityException } from '../../helper/Error/UnprocessableEntity/UnprocessableEntityException';
 import DocumentService from '../documents/documents.service';
+import Users from '../../database/models/user.model';
 
 export default class CartService {
   private documentService: DocumentService;
@@ -188,6 +189,23 @@ export default class CartService {
       return res;
     } catch (error) {
       await t?.rollback();
+      throw error;
+    }
+  }
+
+  async deleteAllItemByBranch(userId: number) {
+    try {
+      console.log(userId);
+      const user = await Users.findByPk(userId);
+      console.log('user', user);
+      const cart = await Cart.destroy({
+        where: {
+          branchId: user!.branch_id!,
+          userId,
+        },
+      });
+      return cart;
+    } catch (error) {
       throw error;
     }
   }

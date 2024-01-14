@@ -21,6 +21,7 @@ import { OrderStockService } from './orderStock.service';
 import Users from '../../database/models/user.model';
 import Addresses from '../../database/models/address.model';
 import { sortOrders } from './utils/sortOrder';
+import _ from 'lodash';
 interface IOrder {
   data: IRequestOrder;
   invoiceNo: string;
@@ -47,6 +48,12 @@ export class OrderService {
       await Promise.all(
         input.products.map(async (product) => {
           await this.productService.getById(product.id, input.branchId);
+          const promotion = input.promotions.find((promo) => promo.productId === product.id);
+          if (promotion) {
+            if (promotion.type === 'buy_one_get_one') {
+              product.qty = product.qty * 2;
+            }
+          }
           await this.stockProductService.checkStockProduct(product.id, input.branchId, product.qty, product.price);
         })
       );
@@ -126,6 +133,30 @@ export class OrderService {
       return acc + curr.price * curr.qty;
     }, 0);
     totalAmount += input.courier.price;
+    let cutPrice = 0;
+    if (input.promotions.length > 0) {
+      input.promotions.forEach((promotion) => {
+        const product = _.find(input.products, (product) => product.id === promotion.productId);
+        if (product) {
+          // if (promo.type === "price_cut" && promo.valueType === "percentage") {
+          //   cutPrice += item.product.price * item.qty * (promo.value! / 100);
+          // } else if (
+          //   promo.type === "price_cut" &&
+          //   promo.valueType === "fixed_price"
+          // ) {
+          //   cutPrice += item.qty * promo.value!;
+          // }
+          if (promotion.type === 'price_cut') {
+            if (promotion.valueType === 'percentage') {
+              cutPrice += product.price * product.qty * (promotion.value / 100);
+            } else if (promotion.valueType === 'fixed_price') {
+              cutPrice += product.qty * promotion.value;
+            }
+          }
+        }
+      });
+    }
+    totalAmount -= cutPrice;
     if (totalAmount !== input.totalAmount) {
       throw new BadRequestException('Total amount is not valid', {});
     }

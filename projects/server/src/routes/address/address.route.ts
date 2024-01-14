@@ -16,11 +16,6 @@ export class AddressRouter {
   private addressRoutes() {
     this.router
       .route('/:id')
-      .post(permissionsMiddleware(['can_create_address']), createAddressValidator(), (req, res) =>
-        this.addressController.createAddress(req, res)
-      );
-    this.router
-      .route('/:id')
       .get(permissionsMiddleware(['can_read_address']), (req, res) => this.addressController.getAddressList(req, res));
     this.router
       .route('/:id/:addressId')
@@ -35,5 +30,10 @@ export class AddressRouter {
     this.router
       .route('/:id/:addressId')
       .get(permissionsMiddleware(['can_read_address']), (req, res) => this.addressController.getAddressById(req, res));
+    this.router
+        .route('/:id')
+        .post(permissionsMiddleware(['can_create_address']), createAddressValidator(), (req, res) =>
+          this.addressController.createAddress(req, res)
+        );
   }
 }

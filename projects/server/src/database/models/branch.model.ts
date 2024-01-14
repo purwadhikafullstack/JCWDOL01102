@@ -8,6 +8,8 @@ export interface BranchAttributes extends BaseModelAttributes {
   latitude: string;
   longitude: string;
   address: string;
+  provinceId?: number;
+  cityId?: number;
 }
 
 export interface BranchCreationAttributes extends Optional<BranchAttributes, 'id'> {}
@@ -18,6 +20,8 @@ class Branch extends BaseModel<BranchAttributes, BranchCreationAttributes> imple
   public latitude!: string;
   public longitude!: string;
   public address!: string;
+  public provinceId!: number;
+  public cityId!: number;
 }
 
 Branch.init(
@@ -38,6 +42,14 @@ Branch.init(
     address: {
       type: new DataTypes.STRING(255),
       allowNull: false,
+    },
+    provinceId: {
+      type: new DataTypes.INTEGER(),
+      allowNull: true,
+    },
+    cityId: {
+      type: new DataTypes.INTEGER(),
+      allowNull: true,
     },
   },
   {
