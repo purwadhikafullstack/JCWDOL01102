@@ -37,8 +37,6 @@ export default class OrderDetailsService {
         },
       });
 
-      //   console.log(details);
-
       const orderDetailsWithProduct = await Promise.all(
         details.map(async (detail) => await this.buildResponsePayload(detail.toJSON()))
       );

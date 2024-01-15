@@ -88,7 +88,7 @@ export class OrderDashboardService {
 
   async getDetailById(invoiceNo: string, branchId: number) {
     try {
-      console.log(invoiceNo, branchId);
+      invoiceNo, branchId;
       const order = await Order.findOne({
         where: {
           invoiceNo,

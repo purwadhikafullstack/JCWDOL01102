@@ -16,7 +16,6 @@ export default class VoucherService {
     this.productService = new ProductService();
   }
   async create(input: VoucherCreationAttributes) {
-    console.log(input);
     try {
       const voucher = await Vouchers.create(input);
       return voucher;
@@ -51,12 +50,10 @@ export default class VoucherService {
   async handleProductVoucherPost(voucherId: number, input: number[]) {
     try {
       const prodHasVoucher = await this.productHasVoucherService.getAllbyVoucherId(voucherId, ['productId']);
-      console.log(prodHasVoucher);
       const idList = findArrayDifference(
         input,
         prodHasVoucher.map((prod) => prod.productId)
       );
-      console.log(idList);
       if (input.length > prodHasVoucher.length) {
         const prodHasVoucherReal = (await this.productHasVoucherService.getAll(voucherId, ['productId'])).map(
           (val) => val.productId
@@ -66,7 +63,6 @@ export default class VoucherService {
           const t = await ProductHasVouchers.sequelize?.transaction();
           try {
             if (prodSet.has(productId)) {
-              console.log(voucherId, productId);
               await ProductHasVouchers.update(
                 { deletedAt: null },
                 { where: { voucherId, productId }, transaction: t, paranoid: false }

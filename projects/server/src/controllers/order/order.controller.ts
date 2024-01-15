@@ -84,7 +84,6 @@ export class OrderController {
   async getOrderDetailDashboard(req: Request, res: Response<IResponse<any>>) {
     try {
       const invoiceNo = req.params.invoiceNo;
-      console.log(req.params);
       const branchId = req.user.branchId;
       const result = await this.orderDashboardService.getDetailById(invoiceNo, branchId);
       res.status(HttpStatusCode.Ok).json({
