@@ -70,7 +70,7 @@ export class DokuVAService {
     const payload = {
       order: {
         invoice_number: invoiceNumber,
-        amount: amount,
+        amount,
       },
       virtual_account_info: {
         billing_type: 'FIX_BILL',
@@ -81,8 +81,8 @@ export class DokuVAService {
         info3: 'on our store',
       },
       customer: {
-        name: name,
-        email: email,
+        name,
+        email,
       },
     };
     const paymentUrl = 'https://api-sandbox.doku.com/mandiri-virtual-account/v2/payment-code';
@@ -114,7 +114,7 @@ export class DokuVAService {
     const payload = {
       order: {
         invoice_number: invoiceNumber,
-        amount: amount,
+        amount,
       },
       virtual_account_info: {
         expired_time: 60,
@@ -124,8 +124,8 @@ export class DokuVAService {
         info3: 'on our store',
       },
       customer: {
-        name: name,
-        email: email,
+        name,
+        email,
       },
     };
     const paymentUrl = 'https://api-sandbox.doku.com/bsm-virtual-account/v2/payment-code';
@@ -157,7 +157,7 @@ export class DokuVAService {
     const payload = {
       order: {
         invoice_number: invoiceNumber,
-        amount: amount,
+        amount,
       },
       virtual_account_info: {
         billing_type: 'FIX_BILL',
@@ -170,14 +170,14 @@ export class DokuVAService {
         info5: 'other info',
       },
       customer: {
-        name: name,
-        email: email,
+        name,
+        email,
       },
     };
-    const paymentUrl = 'https://api-sandbox.doku.com/bsm-virtual-account/v2/payment-code';
+    const paymentUrl = 'https://api-sandbox.doku.com/bri-virtual-account/v2/payment-code';
     const timestamp = DateTime.utc().toISO()?.toString() as string;
     const requestId = 'BCA_VA' + getUniqId({ length: 32 });
-    const requestTarget = '/bsm-virtual-account/v2/payment-code';
+    const requestTarget = '/bri-virtual-account/v2/payment-code';
 
     const getPaymentCode = await this.dokuService.generatePaymentCode({
       payload,
