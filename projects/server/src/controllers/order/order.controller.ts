@@ -2,18 +2,21 @@ import { HttpStatusCode } from 'axios';
 import { Request, Response } from 'express';
 import { ProcessError } from '../../helper/Error/errorHandler';
 import { OrderService } from '../../service/order/order.service';
-import { IResponse } from '../interface';
 import { OrderDashboardService } from '../../service/order/orderDashboard.service';
 import OrderDetailsService from '../../service/order/orderDetails.service';
+import { OrderStatusService } from '../../service/order/orderStatus.service';
+import { IResponse } from '../interface';
 
 export class OrderController {
   orderService: OrderService;
   orderDashboardService: OrderDashboardService;
   orderDetailService: OrderDetailsService;
+  orderStatusService: OrderStatusService;
   constructor() {
     this.orderService = new OrderService();
     this.orderDashboardService = new OrderDashboardService();
     this.orderDetailService = new OrderDetailsService();
+    this.orderStatusService = new OrderStatusService();
   }
 
   async create(req: Request, res: Response<IResponse<any>>) {
@@ -99,6 +102,22 @@ export class OrderController {
       const invoiceNo = req.params.invoiceNo;
       const branchId = req.user.branchId;
       const result = await this.orderDetailService.getOrderDetailsByInvoice(invoiceNo, branchId);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Order fetched',
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async getNotification(req: Request, res: Response<IResponse<any>>) {
+    try {
+      const userId = req.user.userId;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.pageSize) || 10;
+      const result = await this.orderStatusService.getOrderStatusPage(userId, page, limit);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: 'Order fetched',
