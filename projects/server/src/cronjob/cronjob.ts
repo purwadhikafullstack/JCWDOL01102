@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // // CronJob.ts
 
 import { DateTime } from 'luxon';
@@ -18,7 +19,7 @@ export class CronJob {
     cron.schedule('0 * * * *', () => this.exampleCronJob());
     cron.schedule('* * * * *', () => this.checkOrderStatus());
     cron.schedule('*/1 * * * *', () => this.deliverOrder1Mnt());
-    cron.schedule('0 0 */7 * *', () => this.checkOrderStatus());
+    cron.schedule('0 0 */7 * *', () => this.finishOrder());
   }
 
   private exampleCronJob() {
@@ -39,6 +40,7 @@ export class CronJob {
 
       const affectedCount = await this.updateOrderStatus(
         orderStatusConstants.payment_failed.code,
+        orderStatusConstants.created.code,
         DateTime.now().minus({ minutes: 61 }).toJSDate(),
         pendingOrders
       );
@@ -51,6 +53,7 @@ export class CronJob {
 
   private async deliverOrder1Mnt() {
     const deliveredOrders = await this.getDeliveredOrders();
+    // console.log(deliveredOrders);
 
     await Promise.all(
       deliveredOrders.map(async (order) => {
@@ -60,6 +63,7 @@ export class CronJob {
 
     const affectedCount = await this.updateOrderStatus(
       orderStatusConstants.received.code,
+      orderStatusConstants.shipped.code,
       DateTime.now().minus({ minutes: 1 }).toJSDate(),
       deliveredOrders
     );
@@ -78,6 +82,7 @@ export class CronJob {
 
     const affectedCount = await this.updateOrderStatus(
       orderStatusConstants.done.code,
+      orderStatusConstants.received.code,
       DateTime.now().minus({ days: 7 }).toJSDate(),
       finishedOrders
     );
@@ -125,12 +130,12 @@ export class CronJob {
     });
   }
 
-  private async updateOrderStatus(status: string, date: Date, orders: any[]) {
+  private async updateOrderStatus(status: string, fromStatus: string, date: Date, orders: any[]) {
     return Order.update(
       { status },
       {
         where: {
-          status: orderStatusConstants.created.code,
+          status: fromStatus,
           createdAt: {
             [Op.lte]: date,
           },
