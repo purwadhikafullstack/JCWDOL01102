@@ -19,7 +19,7 @@ export class BranchRoute {
     this.route.get(
       '/',
       (req: Request, res: Response, next: NextFunction) => this.branchController.getNearestBranch(req, res, next),
-      permissionsMiddleware(['can_read_branch', 'branch_admin_access']),
+      permissionsMiddleware(['can_read_branch']),
       (req: Request, res: Response) => this.branchController.getAllBranch(req, res)
     );
   }
