@@ -59,4 +59,17 @@ export default class CartController {
       ProcessError(error, res);
     }
   }
+
+  async clearCartBranch(req: Request, res: Response<IResponse<any>>) {
+    try {
+      const { userId } = req.user;
+      await this.cartService.deleteAllItemByBranch(userId);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: messages.SUCCESS,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }

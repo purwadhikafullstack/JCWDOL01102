@@ -45,4 +45,18 @@ export default class BranchController {
       ProcessError(error, res);
     }
   }
+
+  async getBranchByUserId(req: Request, res: Response<IResponse<BranchAttributes>>) {
+    try {
+      const { userId } = req.user;
+      const branch = await this.branchService.getBranchByUserId(userId);
+      res.status(HttpStatusCode.Ok).send({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Get branch success',
+        data: branch,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
 }

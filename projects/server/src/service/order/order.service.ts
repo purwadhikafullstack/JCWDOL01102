@@ -21,6 +21,8 @@ import { OrderStockService } from './orderStock.service';
 import Users from '../../database/models/user.model';
 import Addresses from '../../database/models/address.model';
 import { sortOrders } from './utils/sortOrder';
+import _ from 'lodash';
+import { DokuVAService } from '../doku/dokuVA.service';
 interface IOrder {
   data: IRequestOrder;
   invoiceNo: string;
@@ -33,13 +35,14 @@ export class OrderService {
   stockProductService: StockProductService;
   dokupayService: DokuService;
   orderStockService: OrderStockService;
-
+  dokuVaService: DokuVAService;
   constructor() {
     this.paymentGatewayService = new PaymentGatewayService();
     this.productService = new ProductService();
     this.stockProductService = new StockProductService();
     this.dokupayService = new DokuService();
     this.orderStockService = new OrderStockService();
+    this.dokuVaService = new DokuVAService();
   }
   async createOrder(input: IRequestOrder) {
     const t = (await Order.sequelize?.transaction())!;
@@ -47,6 +50,12 @@ export class OrderService {
       await Promise.all(
         input.products.map(async (product) => {
           await this.productService.getById(product.id, input.branchId);
+          const promotion = input.promotions.find((promo) => promo.productId === product.id);
+          if (promotion) {
+            if (promotion.type === 'buy_one_get_one') {
+              product.qty = product.qty * 2;
+            }
+          }
           await this.stockProductService.checkStockProduct(product.id, input.branchId, product.qty, product.price);
         })
       );
@@ -75,15 +84,30 @@ export class OrderService {
       const user = await Users.findByPk(input.userId);
       await this.orderStockService.updateStockAfterPurchase(order.id, t);
       let result: any;
+      const dataDoku = {
+        invoiceNumber: invoiceNo,
+        amount: input.totalAmount,
+        email: user!.email,
+        name: user!.name,
+      };
+
       switch (input.paymentCode) {
         case 'BCA_VA':
-          result = await this.dokupayService.paymentBcaVa({
-            invoiceNumber: invoiceNo,
-            amount: input.totalAmount,
-            email: user!.email,
-            name: user!.name,
-          });
+          result = await this.dokupayService.paymentBcaVa(dataDoku);
           break;
+        case 'BNI_VA':
+          result = await this.dokuVaService.paymentBniVa(dataDoku);
+          break;
+        case 'MANDIRI_VA':
+          result = await this.dokuVaService.paymentMandiriVa(dataDoku);
+          break;
+        case 'BSI_VA':
+          result = await this.dokuVaService.paymentBsiVa(dataDoku);
+          break;
+        case 'BRI_VA':
+          result = await this.dokuVaService.paymentBriVa(dataDoku);
+          break;
+
         default:
           throw new BadRequestException('Payment code not found');
       }
@@ -126,8 +150,30 @@ export class OrderService {
       return acc + curr.price * curr.qty;
     }, 0);
     totalAmount += input.courier.price;
+    let cutPrice = 0;
+    if (input.promotions.length > 0) {
+      input.promotions.forEach((promotion) => {
+        const product = _.find(input.products, (product) => product.id === promotion.productId);
+        if (product) {
+          if (promotion.type === 'price_cut') {
+            if (promotion.valueType === 'percentage') {
+              cutPrice += product.price * product.qty * (promotion.value / 100);
+            } else if (promotion.valueType === 'fixed_price') {
+              cutPrice += product.qty * promotion.value;
+            }
+          } else if (promotion.type === 'buy_one_get_one') {
+            cutPrice += product.price * (product.qty / 2);
+          }
+        }
+      });
+    }
+    totalAmount -= cutPrice;
     if (totalAmount !== input.totalAmount) {
-      throw new BadRequestException('Total amount is not valid', {});
+      throw new BadRequestException('Total amount is not valid', {
+        error: 'total_amount_not_valid',
+        expected: totalAmount,
+        actual: input.totalAmount,
+      });
     }
   }
 

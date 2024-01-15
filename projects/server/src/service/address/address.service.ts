@@ -30,8 +30,11 @@ export class AddressService {
     if (!isExists) throw new UnprocessableEntityException('Address not found', { id: addressId });
     if (input.isDefault) await Addresses.bulkUpdate({ isDefault: false }, { userId: id });
     const nameExists = await Addresses.findOne({ where: { name: input.name, userId: id } });
-    if (nameExists && isExists.id !== nameExists.id)
-      throw new UnprocessableEntityException('Address name already exists', { name: input.name });
+    console.log(addressId, input.name);
+    console.log(isExists.name, input.name);
+    if (!(isExists.name === input.name))
+      if (nameExists && isExists.id !== nameExists.id)
+        throw new UnprocessableEntityException('Address name already exists', { name: input.name });
     const address = await Addresses.updateById<Addresses>(addressId, input);
     return address;
   }

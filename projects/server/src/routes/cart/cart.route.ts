@@ -13,6 +13,9 @@ export default class CartRouter {
   }
 
   async routes() {
+    this.router.delete('/clear', permissionsMiddleware(['can_delete_cart']), (req: Request, res: Response) =>
+      this.cartController.clearCartBranch(req, res)
+    );
     this.router.get('/', permissionsMiddleware(['can_read_cart']), (req: Request, res: Response) =>
       this.cartController.findCart(req, res)
     );

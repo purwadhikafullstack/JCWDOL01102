@@ -27,6 +27,16 @@ export interface IRequestOrder {
   paymentCode: string;
   courier: Courier;
   totalAmount: number;
+  promotions: Promotion[];
+}
+
+interface Promotion {
+  productId: number;
+  id: number;
+  name: string;
+  type: string;
+  value: number;
+  valueType: string;
 }
 
 interface Courier {

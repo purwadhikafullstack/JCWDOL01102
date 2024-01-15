@@ -10,13 +10,13 @@ export class StockProductService {
       },
     });
     if (!product) {
-      throw new BadRequestException('Product out of stock');
+      throw new BadRequestException('Product out of stock', { error: 'product_out_of_stock' });
     }
     if (product.price !== price) {
-      throw new BadRequestException('Product price not match');
+      throw new BadRequestException('Product price not match', { error: 'product_price_not_match' });
     }
     if (product.stock < qty) {
-      throw new BadRequestException('Product out of stock');
+      throw new BadRequestException('Product out of stock', { error: 'product_out_of_stock' });
     }
     return true;
   }

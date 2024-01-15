@@ -66,7 +66,6 @@ class BaseModel<
     const sortKey = input.sortOptions?.key ?? 'id';
     const sortOrder = input.sortOptions?.order ?? 'ASC';
 
-    console.log(sortKey, sortOrder);
     const results = await this.findAndCountAll({
       where: whereConditions,
       order: [[sortKey, sortOrder]],
@@ -74,6 +73,7 @@ class BaseModel<
       offset,
       include: input.includeConditions,
       attributes: input.attributes,
+      distinct: true,
     });
 
     return {
