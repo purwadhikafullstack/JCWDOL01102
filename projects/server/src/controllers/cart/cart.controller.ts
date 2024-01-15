@@ -27,7 +27,6 @@ export default class CartController {
   }
   async manageCart(req: Request, res: Response<IResponse<any>>) {
     try {
-      console.log(req.body);
       const input = req.body as CartCreationAttributes;
       const action: string = String(req.query.action);
       const { branchId, userId, productId } = req.query;
@@ -35,7 +34,6 @@ export default class CartController {
       if (action === 'add') {
         cart = await this.cartService.addItem(Number(branchId), Number(userId), Number(productId), input);
       } else if (action === 'reduce') {
-        console.log('here');
         cart = await this.cartService.reduceItem(Number(branchId), Number(userId), Number(productId), input);
       }
       res.status(HttpStatusCode.Ok).json({

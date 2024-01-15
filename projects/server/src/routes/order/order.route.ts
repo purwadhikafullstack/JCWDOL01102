@@ -15,6 +15,7 @@ export class OrderRouter {
   }
 
   route() {
+    this.router.route('/notifications').get((req, res) => this.orderController.getNotification(req, res));
     this.router.route('/admin').get((req, res) => this.orderController.getAll(req, res));
     this.router.route('/').post(createOrderValidation(), (req, res) => this.orderController.create(req, res));
     this.router

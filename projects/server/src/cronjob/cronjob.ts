@@ -53,7 +53,6 @@ export class CronJob {
 
   private async deliverOrder1Mnt() {
     const deliveredOrders = await this.getDeliveredOrders();
-    // console.log(deliveredOrders);
 
     await Promise.all(
       deliveredOrders.map(async (order) => {
