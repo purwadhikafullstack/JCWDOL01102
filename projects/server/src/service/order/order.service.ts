@@ -129,7 +129,6 @@ export class OrderService {
       await t?.commit();
       return result;
     } catch (error) {
-      console.log('masuk error');
       await t?.rollback();
       throw error;
     }

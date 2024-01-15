@@ -136,7 +136,6 @@ export default class CartService {
         if (isAvailable.deletedAt) {
           input.deletedAt = null;
         }
-        console.log(input);
         cart = await this.updateCartItem(branchId, userId, productId, input);
       }
       return cart;
@@ -185,7 +184,6 @@ export default class CartService {
         })
       );
       await t?.commit();
-      console.log('here');
       return res;
     } catch (error) {
       await t?.rollback();
@@ -195,9 +193,7 @@ export default class CartService {
 
   async deleteAllItemByBranch(userId: number) {
     try {
-      console.log(userId);
       const user = await Users.findByPk(userId);
-      console.log('user', user);
       const cart = await Cart.destroy({
         where: {
           branchId: user!.branch_id!,

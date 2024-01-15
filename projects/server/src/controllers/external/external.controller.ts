@@ -10,8 +10,8 @@ export class ExternalController {
 
   async paymentNotification(req: Request, res: Response) {
     try {
-      console.log('[NOTIF_HEADERS]', JSON.stringify(req.headers));
-      console.log('[NOTIF_BODY]', JSON.stringify(req.body));
+      console.info('[NOTIF_HEADERS]', JSON.stringify(req.headers));
+      console.info('[NOTIF_BODY]', JSON.stringify(req.body));
       await this.dokuService.handlePaymentNotification(req.headers, req.body);
       res.status(200).json({
         status: 200,
