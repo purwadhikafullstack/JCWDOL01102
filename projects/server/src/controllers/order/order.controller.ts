@@ -4,13 +4,16 @@ import { ProcessError } from '../../helper/Error/errorHandler';
 import { OrderService } from '../../service/order/order.service';
 import { IResponse } from '../interface';
 import { OrderDashboardService } from '../../service/order/orderDashboard.service';
+import OrderDetailsService from '../../service/order/orderDetails.service';
 
 export class OrderController {
   orderService: OrderService;
   orderDashboardService: OrderDashboardService;
+  orderDetailService: OrderDetailsService;
   constructor() {
     this.orderService = new OrderService();
     this.orderDashboardService = new OrderDashboardService();
+    this.orderDetailService = new OrderDetailsService();
   }
 
   async create(req: Request, res: Response<IResponse<any>>) {
@@ -81,6 +84,21 @@ export class OrderController {
       console.log(req.params);
       const branchId = req.user.branchId;
       const result = await this.orderDashboardService.getDetailById(invoiceNo, branchId);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Order fetched',
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
+  async getOrderDetailPage(req: Request, res: Response<IResponse<any>>) {
+    try {
+      const invoiceNo = req.params.invoiceNo;
+      const branchId = req.user.branchId;
+      const result = await this.orderDetailService.getOrderDetailsByInvoice(invoiceNo, branchId);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: 'Order fetched',

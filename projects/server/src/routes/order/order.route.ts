@@ -34,5 +34,9 @@ export class OrderRouter {
       .get(permissionsMiddleware(['branch_admin_access', 'can_read_order']), (req, res) =>
         this.orderController.getOrderDetailDashboard(req, res)
       );
+
+    this.router
+      .route('/detail/:invoiceNo')
+      .get(permissionsMiddleware(['can_read_order']), (req, res) => this.orderController.getOrderDetailPage(req, res));
   }
 }
