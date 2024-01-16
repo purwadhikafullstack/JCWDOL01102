@@ -33,8 +33,8 @@ export default class Server {
 
    private initializeClient() {
     const clientPath = '../../client/build';
-    this.app.use(express.static(path.join(__dirname, clientPath)));
-    this.app.get('*', (req, res) => {
+    this.expressInstance.use(express.static(path.join(__dirname, clientPath)));
+    this.expressInstance.get('*', (req, res) => {
       res.sendFile(path.join(__dirname, clientPath, 'index.html'));
     });
   }
