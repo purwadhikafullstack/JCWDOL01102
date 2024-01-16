@@ -19,5 +19,9 @@
   },
   "workspaces": [
     "projects/*"
-  ]
+  ],
+  "dependencies": {
+    "@types/haversine": "^1.1.8",
+    "haversine": "^1.1.1"
+  }
 }
