@@ -1,5 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+dotenv.config({
+  path: path.resolve(__dirname, '../../../../.env'),
+});
 
 const configConstants = {
   DB_NAME: process.env.DB_NAME ?? 'eventopia',
@@ -30,5 +33,6 @@ const configConstants = {
   RAJA_ONGKIR_URL: process.env.RAJA_ONGKIR_URL ?? 'https://api.rajaongkir.com',
   RAJA_ONGKIR_KEY: process.env.RAJA_ONGKIR_KEY ?? '',
 };
+console.log('configConstants', configConstants);
 
 export default configConstants;

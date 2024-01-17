@@ -1,8 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
+import path from 'path';
+
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { readFileSync } = require('fs');
 const dotenv = require('dotenv');
-dotenv.config();
+dotenv.config({
+  path: path.resolve(__dirname, '../../../../.env'),
+});
 
 module.exports = {
   development: {
