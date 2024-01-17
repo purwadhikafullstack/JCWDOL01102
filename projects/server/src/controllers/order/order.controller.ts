@@ -98,9 +98,9 @@ export class OrderController {
 
   async getOrderDetailPage(req: Request, res: Response<IResponse<any>>) {
     try {
-      const invoiceNo = req.params.invoiceNo;
-      const branchId = req.user.branchId;
-      const result = await this.orderDetailService.getOrderDetailsByInvoice(invoiceNo, branchId);
+      const invoiceNo = req.query.invoiceNo;
+      const userId = Number(req.user.userId);
+      const result = await this.orderDetailService.getOrderDetailsByInvoice(String(invoiceNo), userId);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: 'Order fetched',

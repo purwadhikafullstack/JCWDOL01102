@@ -50,7 +50,8 @@ export const userExistValidation =
       const body: IUserBodyReq = req.body;
       const user = await userService.findOne({ email: body.email });
       if (user) {
-        res.status(HttpStatusCode.BadRequest).send({
+        console.log('Avalable');
+        return res.status(HttpStatusCode.BadRequest).json({
           statusCode: HttpStatusCode.BadRequest,
           message: 'User with this email is already exist',
         });
@@ -58,11 +59,10 @@ export const userExistValidation =
         return next();
       }
     } catch (e: any) {
-      console.log(e);
       if (e instanceof NotFoundException) {
         return next();
       } else {
-        res.status(HttpStatusCode.InternalServerError).send({
+        return res.status(HttpStatusCode.InternalServerError).send({
           statusCode: HttpStatusCode.InternalServerError,
           message: 'Server Error',
         });

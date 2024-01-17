@@ -20,10 +20,8 @@ export class OrderRouter {
     this.router.route('/').post(createOrderValidation(), (req, res) => this.orderController.create(req, res));
     this.router
       .route('/status/:orderId')
-      .put(
-        updateOrderStatusValidation(),
-        permissionsMiddleware(['branch_admin_access', 'can_update_order']),
-        (req, res) => this.orderController.updateOrderStatus(req, res)
+      .put(updateOrderStatusValidation(), permissionsMiddleware(['can_update_order']), (req, res) =>
+        this.orderController.updateOrderStatus(req, res)
       );
     this.router
       .route('/cancel/:orderId')
@@ -37,7 +35,7 @@ export class OrderRouter {
       );
 
     this.router
-      .route('/detail/:invoiceNo')
+      .route('/detail')
       .get(permissionsMiddleware(['can_read_order']), (req, res) => this.orderController.getOrderDetailPage(req, res));
   }
 }
