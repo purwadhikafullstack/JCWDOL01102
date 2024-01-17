@@ -3,6 +3,7 @@
 import bodyParser from 'body-parser';
 import compression from 'compression';
 import cors from 'cors';
+import path from 'path';
 import express, { NextFunction, Response } from 'express';
 import expressListEndpoints from 'express-list-endpoints';
 import helmet from 'helmet';
@@ -26,9 +27,18 @@ export default class Server {
     this.routes = new Routes(this.expressInstance);
     this.routesSetup();
     this.printRegisteredRoutes();
+    this.initializeClient();
     new CronJob();
   }
 
+   private initializeClient() {
+    const clientPath = '../../client/build';
+    this.expressInstance.use(express.static(path.join(__dirname, clientPath)));
+    this.expressInstance.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, clientPath, 'index.html'));
+    });
+  }
+  
   private middlewareSetup() {
     // Setup common security protection (Helmet should come first)
     this.expressInstance.use(helmet());
