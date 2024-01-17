@@ -21,6 +21,7 @@ export class OrderDashboardService {
   }
 
   async updateStatusOrder(newStatus: string, orderId: number, branchId: number) {
+    console.log(orderId, newStatus, branchId);
     const t = (await Order.sequelize?.transaction())!;
     try {
       if (!orderStatusList.includes(newStatus)) {
@@ -33,6 +34,37 @@ export class OrderDashboardService {
       if (order.branchId !== branchId) {
         throw new BadRequestException('Order not found');
       }
+      const indexNewStatus = orderStatusList.indexOf(newStatus);
+      if (orderStatusList[indexNewStatus - 1] !== order.status) {
+        throw new BadRequestException('Invalid status');
+      }
+      await this.orderService.updateOrderById({ status: newStatus }, orderId, t);
+      await this.orderStatusService.createOrderStatus(orderId, newStatus, t);
+      await t.commit();
+      return await this.getById(orderId);
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
+  }
+
+  async updateStatusOrderUser(newStatus: string, orderId: number, userId: number) {
+    const t = (await Order.sequelize?.transaction())!;
+    try {
+      if (!orderStatusList.includes(newStatus)) {
+        throw new BadRequestException('Invalid status');
+      }
+      const order = await Order.findOne({
+        where: {
+          id: orderId,
+          userId,
+        },
+      });
+
+      if (!order) {
+        throw new BadRequestException('Order not found');
+      }
+
       const indexNewStatus = orderStatusList.indexOf(newStatus);
       if (orderStatusList[indexNewStatus - 1] !== order.status) {
         throw new BadRequestException('Invalid status');

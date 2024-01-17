@@ -24,6 +24,11 @@ export class OrderRouter {
         this.orderController.updateOrderStatus(req, res)
       );
     this.router
+      .route('/user/status/:orderId')
+      .put(updateOrderStatusValidation(), permissionsMiddleware(['can_update_order']), (req, res) =>
+        this.orderController.updateOrderStatusUser(req, res)
+      );
+    this.router
       .route('/cancel/:orderId')
       .put(permissionsMiddleware(['branch_admin_access', 'can_update_order']), (req, res) =>
         this.orderController.cancelOrder(req, res)
