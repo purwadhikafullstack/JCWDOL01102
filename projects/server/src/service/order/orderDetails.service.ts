@@ -13,17 +13,17 @@ export default class OrderDetailsService {
   constructor() {
     this.documentService = new DocumentService();
   }
-  async getOrderDetailsByInvoice(invoiceNo: string, branchId: number): Promise<any> {
+  async getOrderDetailsByInvoice(invoiceNo: string, userId: number): Promise<any> {
     try {
       const order = await Order.findOne({
         where: {
+          userId,
           invoiceNo,
-          branchId,
         },
       });
 
       if (!order) {
-        throw new UnprocessableEntityException('Order not avalable', {});
+        throw new UnprocessableEntityException('Order not found', {});
       }
 
       const status = await OrderStatus.findAll({

@@ -8,6 +8,7 @@ export interface UserAttributes extends BaseModelAttributes {
   image_id: number | null;
   branch_id?: number | null;
   name: string;
+  gender?: string;
   email: string;
   address: string;
   phoneNumber: string;
@@ -31,6 +32,7 @@ class Users extends BaseModel<UserAttributes, UserCreationAttributes> implements
   public image_id!: number | null;
   public branch_id!: number | null;
   public name!: string;
+  public gender?: string | undefined;
   public email!: string;
   public password!: string;
   public address!: string;
@@ -61,6 +63,10 @@ Users.init(
     name: {
       type: new DataTypes.STRING(255),
       allowNull: false,
+    },
+    gender: {
+      type: new DataTypes.STRING(255),
+      allowNull: true,
     },
     email: {
       type: new DataTypes.STRING(255),
