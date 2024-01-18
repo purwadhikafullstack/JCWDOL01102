@@ -66,6 +66,22 @@ export class OrderController {
     }
   }
 
+  async updateOrderStatusUser(req: Request, res: Response<IResponse<any>>) {
+    try {
+      const orderId = Number(req.params.orderId);
+      const status = req.body.status;
+      const userId = req.user.userId;
+      const result = await this.orderDashboardService.updateStatusOrderUser(status, orderId, userId);
+      res.status(HttpStatusCode.Ok).json({
+        statusCode: HttpStatusCode.Ok,
+        message: 'Order status updated',
+        data: result,
+      });
+    } catch (error) {
+      ProcessError(error, res);
+    }
+  }
+
   async cancelOrder(req: Request, res: Response<IResponse<any>>) {
     try {
       const orderId = Number(req.params.orderId);
@@ -98,9 +114,9 @@ export class OrderController {
 
   async getOrderDetailPage(req: Request, res: Response<IResponse<any>>) {
     try {
-      const invoiceNo = req.params.invoiceNo;
-      const branchId = req.user.branchId;
-      const result = await this.orderDetailService.getOrderDetailsByInvoice(invoiceNo, branchId);
+      const invoiceNo = req.query.invoiceNo;
+      const userId = Number(req.user.userId);
+      const result = await this.orderDetailService.getOrderDetailsByInvoice(String(invoiceNo), userId);
       res.status(HttpStatusCode.Ok).json({
         statusCode: HttpStatusCode.Ok,
         message: 'Order fetched',

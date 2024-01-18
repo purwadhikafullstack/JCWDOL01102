@@ -3,7 +3,11 @@ import sequelize, { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import configConstants from './constants';
 import path from 'path';
-dotenv.config();
+const envFilePath = path.resolve(__dirname, '..', '..', '..', '..', '.env');
+
+dotenv.config({
+  path: path.resolve(envFilePath),
+});
 
 const sequelizeConfig = path.resolve(__dirname, './config');
 const env = process.env.NODE_ENV || 'development';
