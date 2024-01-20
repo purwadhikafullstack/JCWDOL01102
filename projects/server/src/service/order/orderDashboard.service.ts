@@ -21,7 +21,6 @@ export class OrderDashboardService {
   }
 
   async updateStatusOrder(newStatus: string, orderId: number, branchId: number) {
-    console.log(orderId, newStatus, branchId);
     const t = (await Order.sequelize?.transaction())!;
     try {
       if (!orderStatusList.includes(newStatus)) {

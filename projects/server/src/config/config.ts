@@ -6,7 +6,7 @@ import path from 'path';
 const { readFileSync } = require('fs');
 const dotenv = require('dotenv');
 dotenv.config({
-  path: path.resolve(__dirname, '../../../../.env'),
+  path: path.resolve(__dirname, '../../.env'),
 });
 
 module.exports = {
