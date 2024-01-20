@@ -31,7 +31,9 @@ export default class Server {
     new CronJob();
   }
 
-  private initializeClient() {
+
+   private initializeClient() {
+
     const clientPath = '../../client/build';
     this.expressInstance.use(express.static(path.join(__dirname, clientPath)));
     this.expressInstance.get('*', (req, res) => {
